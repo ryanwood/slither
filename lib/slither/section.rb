@@ -20,7 +20,7 @@ class Slither
     end
     
     def trap(&block)
-    	@trap = block
+      @trap = block
     end
     
     def format(data)
@@ -42,8 +42,8 @@ class Slither
     end
     
     def parse(line)
-    	puts "Unpacker: #{unpacker}"
-			line_data = line.unpack(unpacker)
+      puts "Unpacker: #{unpacker}"
+      line_data = line.unpack(unpacker)
       row = {}
       @columns.each_with_index do |c, i|
         row[c.name] = c.to_type(line_data[i]) unless c.name == :spacer
@@ -52,27 +52,27 @@ class Slither
     end
     
     def match(raw_line)
-    	return true unless @trap
-    	@trap.call(raw_line)
-  	end
+      return true unless @trap
+      @trap.call(raw_line)
+    end
   
     private
-	    
-	    def aligner
-	      (@options[:align] && @options[:align] == :left) ? '-' : ''
-	    end
-	    
-	    def unpacker
-	    	@columns.map { |c| c.unpacker }.join('')
-	    end
-	    
-	  	def unpack(line, pattern, columns)
-	      row = line.unpack(pattern)
-	      line = {}
-	      mappings.each_with_index do |key, i|
-	        line[key.to_sym] = row[i].strip
-	      end
-	      line
-	    end
+      
+      def aligner
+        (@options[:align] && @options[:align] == :left) ? '-' : ''
+      end
+      
+      def unpacker
+        @columns.map { |c| c.unpacker }.join('')
+      end
+      
+      def unpack(line, pattern, columns)
+        row = line.unpack(pattern)
+        line = {}
+        mappings.each_with_index do |key, i|
+          line[key.to_sym] = row[i].strip
+        end
+        line
+      end
   end  
 end

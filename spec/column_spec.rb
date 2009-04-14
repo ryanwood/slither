@@ -17,8 +17,8 @@ describe Slither::Column do
   end
   
   it "should return the proper unpack value for a string" do
-  	c = Slither::Column.new(:name, 10)
-  	c.unpacker.should == 'A10'
+    c = Slither::Column.new(:name, 10)
+    c.unpacker.should == 'A10'
   end
 
 end

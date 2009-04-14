@@ -20,16 +20,16 @@ class Slither
   end
   
   def self.write(filename, definition_name, data)
-  	File.open(filename, 'w') do |f|
-  		f.write generate(definition_name, data)	
-  	end	
-	end
-	
-	def self.parse(filename, definition_name)
+    File.open(filename, 'w') do |f|
+      f.write generate(definition_name, data)  
+    end  
+  end
+  
+  def self.parse(filename, definition_name)
     raise ArgumentError, "File #{filename} does not exist." unless File.exists?(filename)
-		definition = definition(definition_name)
+    definition = definition(definition_name)
     raise ArgumentError, "Definition '#{name}' was not found." unless definition    
     parser = Parser.new(definition, filename)
     parser.parse    
-	end	
+  end  
 end

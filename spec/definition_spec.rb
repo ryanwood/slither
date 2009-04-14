@@ -28,10 +28,10 @@ describe Slither::Definition do
   end
 
   it "should override the default if :align is passed to the section" do
-  	Slither::Section.should_receive(:new).with('name', {:align => :left})
+    Slither::Section.should_receive(:new).with('name', {:align => :left})
     d = Slither::Definition.new
     d.options[:align].should == :right
-  	d.section('name', :align => :left){}
+    d.section('name', :align => :left){}
   end
   
 end

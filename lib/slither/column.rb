@@ -1,3 +1,5 @@
+require 'date'
+
 class Slither
   class Column
     attr_reader :name, :length, :alignment, :options
@@ -16,15 +18,21 @@ class Slither
     end
     
     def unpacker
-    	"A#{@length}"
+      "A#{@length}"
     end
     
     def to_type(value)
-    	case @type
-	  		when :integer: value.to_i
-				when :float: value.to_f
-				else value.strip
-			end
+      case @type
+        when :integer: value.to_i
+        when :float: value.to_f
+        when :date:
+          if @options[:date_format]
+            Date.strptime(value, @options[:date_format])
+          else
+            Date.strptime(value)
+          end
+        else value.strip
+      end
     end
     
     private

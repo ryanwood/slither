@@ -2,7 +2,7 @@ require 'date'
 
 class Slither
   class Column
-    attr_reader :name, :length, :alignment, :options
+    attr_reader :name, :length, :alignment, :type, :options
     
     def initialize(name, length, options = {})
       assert_valid_options(options)
@@ -35,16 +35,28 @@ class Slither
       end
     end
     
-    private
-    
-    def aligner
-      @alignment == :left ? '-' : ''
+    def format_string(value)
+      case @type
+        when :date:
+          if @options[:date_format]
+            value.strftime(@options[:date_format])
+          else
+            value.strftime
+          end
+        else value.to_s
+      end
     end
     
-    def assert_valid_options(options)
-      unless options[:align].nil? || [:left, :right].include?(options[:align])
-        raise ArgumentError, "Option :align only accepts :right (default) or :left."
+    private
+    
+      def aligner
+        @alignment == :left ? '-' : ''
       end
-    end    
+      
+      def assert_valid_options(options)
+        unless options[:align].nil? || [:left, :right].include?(options[:align])
+          raise ArgumentError, "Option :align only accepts :right (default) or :left"
+        end
+      end    
   end  
 end

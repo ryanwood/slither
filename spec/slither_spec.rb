@@ -23,15 +23,49 @@ describe Slither do
         yielded = y
       end
       yielded.should be_a( Slither::Definition )
-    end    
+    end
+    
+    it "should add to the internal definition count" do
+      Slither.definitions.clear
+      Slither.should have(0).definitions
+      Slither.define(@name , @options) {}
+      Slither.should have(1).definitions
+    end
   end
   
-	describe "when generating a string" do
-
-	end
+  describe "when creating file from data" do 
+    it "should raise an error if the definition name is not found" do
+      lambda { Slither.generate(:not_there, {}) }.should raise_error(ArgumentError)      
+    end
+    
+    it "should output a string" do
+      definition = mock('definition')
+      generator = mock('generator')
+      generator.should_receive(:generate).with({})
+      Slither.should_receive(:definition).with(:test).and_return(definition)
+      Slither::Generator.should_receive(:new).with(definition).and_return(generator)
+      Slither.generate(:test, {})
+    end
+    
+    it "should output a file" do
+  	  file = mock('file')
+  	  text = mock('string')
+  	  file.should_receive(:write).with(text)
+  	  File.should_receive(:open).with('file.txt', 'w').and_yield(file)
+  	  Slither.should_receive(:generate).with(:test, {}).and_return(text)
+      Slither.write('file.txt', :test, {})
+  	end       
+  end
 	
-	describe "when writing a file" do
-		
-	end
-
+  describe "when parsing a file" do
+    it "should check the file exists" do
+      lambda { Slither.parse('file_doesnt_exist.txt', :test, {}) }.should raise_error(ArgumentError)
+    end
+    
+    it "should raise an error if the definition name is not found" do
+      Slither.definitions.clear
+      File.stub!(:exists? => true)
+      lambda { Slither.parse('file_exists.txt', :test, {}) }.should raise_error(ArgumentError)      
+    end
+  end
 end

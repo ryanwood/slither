@@ -58,14 +58,27 @@ describe Slither do
   end
 	
   describe "when parsing a file" do
+    before(:each) do
+      @file_name = 'file.txt'
+    end
+    
     it "should check the file exists" do
-      lambda { Slither.parse('file_doesnt_exist.txt', :test, {}) }.should raise_error(ArgumentError)
+      lambda { Slither.parse(@file_name, :test, {}) }.should raise_error(ArgumentError)
     end
     
     it "should raise an error if the definition name is not found" do
       Slither.definitions.clear
       File.stub!(:exists? => true)
-      lambda { Slither.parse('file_exists.txt', :test, {}) }.should raise_error(ArgumentError)      
+      lambda { Slither.parse(@file_name, :test, {}) }.should raise_error(ArgumentError)      
+    end
+    
+    it "should create a parser and call parse" do
+      File.stub!(:exists? => true)
+      parser = mock("parser", :null_object => true)
+      definition = mock('definition')     
+      Slither.should_receive(:definition).with(:test).and_return(definition)
+      Slither::Parser.should_receive(:new).with(definition, @file_name).and_return(parser)      
+      Slither.parse(@file_name, :test)
     end
   end
 end

@@ -1,5 +1,3 @@
 * Validation
-* Required/Optional Sections
 * Alternate Section Flow (other than linear), i.e. repeatable sections (think batch)
-* Clean up Parser logic
-* Documentation
+* Better Documentation

@@ -31,8 +31,7 @@ describe Slither::Column do
     end
     
     it "should only accept :right or :left for an alignment" do
-      lambda{ Slither::Column.new(@name, @length, :align => :bogus) }.should 
-        raise_error(ArgumentError, "Option :align only accepts :right (default) or :left")
+      lambda{ Slither::Column.new(@name, @length, :align => :bogus) }.should raise_error(ArgumentError, "Option :align only accepts :right (default) or :left")
     end 
         
     it "should override the default alignment" do

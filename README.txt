@@ -6,7 +6,7 @@
 
 A simple, clean DSL for describing, writing, and parsing fixed-width text files.
 
-== FEATURES/PROBLEMS:
+== FEATURES:
 
 * Easy DSL syntax
 * Can parse and format fixed width files

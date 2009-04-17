@@ -1,3 +1,4 @@
 *.gem
 .eprj
+pkg
 coverage

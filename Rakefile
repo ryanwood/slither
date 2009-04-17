@@ -25,13 +25,13 @@ PROJ.authors = 'Ryan Wood'
 PROJ.email = 'ryan.wood@gmail.com'
 PROJ.url = 'http://github.com/ryanwood/slither'
 PROJ.version = '0.99.0'
-PROJ.exclude = %w(\.git .gitignore ^tasks \.eprj)
+PROJ.exclude = %w(\.git .gitignore ^tasks \.eprj ^pkg)
 PROJ.readme_file = 'README.rdoc'
 
 #PROJ.rubyforge.name = 'codeforpeople'
 
 PROJ.rdoc.exclude << '^data'
-PROJ.notes.exclude = %w(^README\.rdoc$ ^data/)
+PROJ.notes.exclude = %w(^README\.rdoc$ ^data ^pkg)
 
 # PROJ.svn.path = 'bones'
 # PROJ.spec.opts << '--color'

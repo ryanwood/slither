@@ -1,5 +1,7 @@
 class Slither
   
+  VERSION = '0.99.0'
+  
   def self.define(name, options = {}, &block)
     definition = Definition.new(options)
     yield(definition)

@@ -55,6 +55,10 @@ class Slither
     def match(raw_line)
       raw_line.nil? ? false : @trap.call(raw_line)
     end
+    
+    def method_missing(method, *args)
+      column(method, *args)
+    end
   
     private
       

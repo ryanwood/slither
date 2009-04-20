@@ -14,6 +14,7 @@ class Slither
     end
     
     def column(name, length, options = {})
+      raise(Slither::DuplicateColumnNameError, "You have already defined a column named '#{name}'.") if @columns.map{ |c| c.name }.include?(name)
       col = Column.new(name, length, @options.merge(options))
       @columns << col
       col

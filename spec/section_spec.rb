@@ -13,8 +13,7 @@ describe Slither::Section do
     Slither::Section::RESERVED_NAMES.should == [:spacer]
   end
   
-  describe "when adding columns" do
-    
+  describe "when adding columns" do    
     it "should build an ordered column list" do
       @section.should have(0).columns
     
@@ -45,6 +44,10 @@ describe Slither::Section do
       @section.should have(1).columns
     end
     
+    it "should prevent duplicate column names" do
+      @section.column :id, 10
+      lambda { @section.column(:id, 30) }.should raise_error(Slither::DuplicateColumnNameError, "You have already defined a column named 'id'.")
+    end    
   end
   
   it "should accept and store the trap as a block" do

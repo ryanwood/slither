@@ -1,7 +1,4 @@
 class Slither
-  
-  class RequiredSectionNotFoundError < StandardError; end
-  
   class Parser
         
     def initialize(definition, file)
@@ -17,7 +14,7 @@ class Slither
       unless @content.empty?
         @definition.sections.each do |section|
           rows = fill_content(section)
-          raise Slither::RequiredSectionNotFoundError unless rows > 0 || section.optional
+          raise(Slither::RequiredSectionNotFoundError, "Required section '#{section.name}' was not found.") unless rows > 0 || section.optional
         end
       end
       @parsed

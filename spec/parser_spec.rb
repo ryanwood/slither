@@ -66,7 +66,7 @@ describe Slither::Parser do
       
     it "should raise an error if a required section is not found" do
       @file.should_receive(:gets).twice.and_return('      Ryan      Wood', nil)
-      lambda { @parser.parse }.should raise_error(Slither::RequiredSectionNotFoundError)
+      lambda { @parser.parse }.should raise_error(Slither::RequiredSectionNotFoundError, "Required section 'header' was not found.")
     end
     
     it "raise an error if a section limit is over run"

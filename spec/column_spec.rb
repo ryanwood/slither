@@ -77,9 +77,16 @@ describe Slither::Column do
     end   
   end
   
-  describe "when formatting the value" do
+  describe "when getting the column's the value" do
     it "should default to a string" do
       @column.format_string('name').should == 'name'
+    end
+    
+    it "should raise an error if the value is longer than the length" do
+      lambda { @column.format_string('This string is too long') }.should raise_error(
+        Slither::FormattedStringExceedsLengthError, 
+        "The formatted value 'This string is too long' exceeds #{@length} chararacters, the allowable length of the '#{@name}' column."
+      )
     end
     
     it "should support the :integer type" do
@@ -88,19 +95,19 @@ describe Slither::Column do
     end
 
     it "should support the :float type" do
-      @column = Slither::Column.new(@name, @length, :type => :float)
+      @column = Slither::Column.new(:amount, 6, :type => :float)
       @column.format_string(234.45).should == '234.45'
     end
 
     it "should support the :date type" do
       dt = Date.new(2009, 8, 22)
-      @column = Slither::Column.new(@name, @length, :type => :date)
+      @column = Slither::Column.new(:date, 10, :type => :date)
       @column.format_string(dt).should == '2009-08-22'
     end   
     
     it "should use the :date_format option with :date type if available" do
       dt = Date.new(2009, 8, 22)
-      @column = Slither::Column.new(@name, @length, :type => :date, :date_format => "%m%d%Y")
+      @column = Slither::Column.new(:date, 8, :type => :date, :date_format => "%m%d%Y")
       @column.format_string(dt).should == '08222009'
     end 
   end

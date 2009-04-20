@@ -5,6 +5,7 @@ class Slither
   class DuplicateColumnNameError < StandardError; end
   class RequiredSectionNotFoundError < StandardError; end
   class RequiredSectionEmptyError < StandardError; end
+  class FormattedStringExceedsLengthError < StandardError; end
   
   
   def self.define(name, options = {}, &block)

@@ -36,7 +36,7 @@ class Slither
     end
     
     def format_string(value)
-      case @type
+      result = case @type
         when :date:
           if @options[:date_format]
             value.strftime(@options[:date_format])
@@ -45,6 +45,11 @@ class Slither
           end
         else value.to_s
       end
+      raise( 
+        Slither::FormattedStringExceedsLengthError, 
+        "The formatted value '#{result}' exceeds #{@length} chararacters, the allowable length of the '#{@name}' column."
+      ) if result.length > @length
+      result
     end
     
     private

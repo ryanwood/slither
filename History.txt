@@ -1,4 +1,10 @@
 == 0.99.0 / 2009-04-14
 
 * Initial Release
-  * Happy Birthday!
+  
+== 0.99.1 / 2009-04-22
+
+* Make the missing method build a column  i.e. body.record_type 1
+* Prevent duplicate column names
+* Better error messages
+* Implement custom padding (spaces (default), zero)

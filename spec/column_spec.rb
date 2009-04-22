@@ -127,7 +127,6 @@ describe Slither::Column do
   end
   
   describe "when formatting a column" do
-    
     it "should return a proper formatter" do
       @column = Slither::Column.new(@name, @length, :align => :left)
       @column.send(:formatter).should == "%-5s"
@@ -164,7 +163,5 @@ describe Slither::Column do
         @column.format(4.45).should == '4.450'
       end
     end
-    
-
   end
 end

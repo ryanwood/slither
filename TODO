@@ -1,14 +1,8 @@
-== 0.99.1
+== 0.99.2
 
-^ * Make the missing method build a column  i.e. body.record_type 1
-^ * Prevent duplicate column names
-^ * Better error messages
-^ * Implement custom padding (spaces (default), zero)
 * Add :limit option on sections
 * Add :validation option for columns
 * Add a validate_file() method to parse a file and run all validation tests (implies validation implemented)
-    
-== 0.99.2
 
 == 1.0.0
 

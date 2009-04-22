@@ -41,7 +41,7 @@ class Slither
     def format(data)
       row = ''
       @columns.each do |column|
-        row += (column.formatter % column.format_string(data[column.name]))
+        row += column.format(data[column.name])
       end
       row
     end

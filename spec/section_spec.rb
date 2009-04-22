@@ -47,6 +47,11 @@ describe Slither::Section do
     it "should prevent duplicate column names" do
       @section.column :id, 10
       lambda { @section.column(:id, 30) }.should raise_error(Slither::DuplicateColumnNameError, "You have already defined a column named 'id'.")
+    end
+    
+    it "should allow duplicate column names that are reserved (i.e. spacer)" do
+      @section.spacer 10
+      lambda { @section.spacer 10 }.should_not raise_error(Slither::DuplicateColumnNameError)
     end    
   end
   

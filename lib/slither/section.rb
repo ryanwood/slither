@@ -50,7 +50,7 @@ class Slither
       line_data = line.unpack(unpacker)
       row = {}
       @columns.each_with_index do |c, i|
-        row[c.name] = c.to_type(line_data[i]) unless RESERVED_NAMES.include?(c.name)
+        row[c.name] = c.parse(line_data[i]) unless RESERVED_NAMES.include?(c.name)
       end
       row
     end

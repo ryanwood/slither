@@ -20,13 +20,15 @@ class Slither
       "A#{@length}"
     end
        
-    def to_type(value)
+    def parse(value)
       case @type
         when :integer: value.to_i
-        when :float: value.to_f
+        when :float, :money: value.to_f
+        when :money_with_implied_decimal:
+          value.to_f / 100
         when :date:
-          if @options[:date_format]
-            Date.strptime(value, @options[:date_format])
+          if @options[:format]
+            Date.strptime(value, @options[:format])
           else
             Date.strptime(value)
           end
@@ -35,13 +37,15 @@ class Slither
     end
     
     def format(value)
-      pad(formatter % format_as_string(value))
+      pad(formatter % to_s(value))
+    rescue
+      puts "Could not format column '#{@name}' as a '#{@type}' with formatter '#{formatter}' and value of '#{value}' (formatted: '#{to_s(value)}'). #{$!}"
     end
        
     private
     
       def formatter
-        "%#{aligner}#{sizer}#{typer}"
+        "%#{aligner}#{sizer}s"
       end
           
       def aligner
@@ -50,14 +54,6 @@ class Slither
       
       def sizer
         (@type == :float && @precision) ? @precision : @length
-      end
-      
-      def typer
-        case @type
-          when :integer: 'd'
-          when :float: 's'
-          else 's'
-        end
       end
       
       # Manually apply padding. sprintf only allows padding on numeric fields.
@@ -69,19 +65,34 @@ class Slither
       	value.gsub(space[0], '0' * space[0].size)
       end
       
-      def format_as_string(value)
+      def to_s(value)
         result = case @type
-          when :date:
-            if @options[:date_format]
-              value.strftime(@options[:date_format])
-            else
-              value.strftime
+          when :date:            
+            # If it's a DBI::Timestamp object, see if we can convert it to a Time object
+            unless value.respond_to?(:strftime)
+              value = value.to_time if value.respond_to?(:to_time)
             end
-          else value.to_s
+            if value.respond_to?(:strftime)        
+              if @options[:format]
+                value.strftime(@options[:format])
+              else
+                value.strftime
+              end
+            else
+              value.to_s
+            end
+          when :float:
+            @options[:format] ? @options[:format] % value.to_f : value.to_f.to_s
+          when :money:
+            "%.2f" % value.to_f
+          when :money_with_implied_decimal:
+            "%d" % (value.to_f * 100)
+          else 
+            value.to_s
         end
         raise( 
           Slither::FormattedStringExceedsLengthError, 
-          "The formatted value '#{result}' exceeds #{@length} chararacters, the allowable length of the '#{@name}' column."
+          "The formatted value '#{result}' in column '#{@name}' exceeds the allowed length of #{@length} chararacters."
         ) if result.length > @length
         result
       end

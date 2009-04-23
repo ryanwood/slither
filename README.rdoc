@@ -46,6 +46,8 @@ A simple, clean DSL for describing, writing, and parsing fixed-width text files.
     end
   end
   
+Supported types are: string, integer, date, float, money, and money_with_implied_decimal.
+  
 Then either feed it a nested struct with data values to create the file in the defined format:
 
   test_data = {

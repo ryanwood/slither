@@ -69,15 +69,6 @@ describe Slither::Parser do
       lambda { @parser.parse }.should raise_error(Slither::RequiredSectionNotFoundError, "Required section 'header' was not found.")
     end
     
-    it "raise an error if a section limit is over run"
+    # it "raise an error if a section limit is over run"
   end
-  
-
-  
-  describe "when in linear mode" do
-
-  end
-  
-
-
 end

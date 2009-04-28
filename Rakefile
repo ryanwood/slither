@@ -24,7 +24,7 @@ PROJ.name = 'slither'
 PROJ.authors = 'Ryan Wood'
 PROJ.email = 'ryan.wood@gmail.com'
 PROJ.url = 'http://github.com/ryanwood/slither'
-PROJ.version = '0.99.1'
+PROJ.version = '0.99.2'
 PROJ.exclude = %w(\.git .gitignore ^tasks \.eprj ^pkg)
 PROJ.readme_file = 'README.rdoc'
 

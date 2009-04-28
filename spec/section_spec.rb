@@ -104,6 +104,14 @@ describe Slither::Section do
       @section.column(:name, 10, :align => :left)  
       @section.format(@data).should == "    3Ryan      "      
     end
+    
+    # it "should raise an error if the data and column definitions aren't the same size" do
+    #   @section.column(:id, 5)
+    #   lambda { @section.format(@data) }.should raise_error(
+    #     Slither::ColumnMismatchError,
+    #     "The 'body' section has 1 column(s) defined, but there are 2 column(s) provided in the data."
+    #   )
+    # end
   end
   
   describe "when parsing a file" do

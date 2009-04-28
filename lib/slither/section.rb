@@ -39,7 +39,10 @@ class Slither
     end
     
     def format(data)
-      row = ''
+      # raise( ColumnMismatchError,
+      #   "The '#{@name}' section has #{@columns.size} column(s) defined, but there are #{data.size} column(s) provided in the data."
+      # ) unless @columns.size == data.size
+      row = ''      
       @columns.each do |column|
         row += column.format(data[column.name])
       end

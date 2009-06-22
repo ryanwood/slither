@@ -153,12 +153,24 @@ describe Slither::Column do
       @column.format('Bill').should == '      Bill'
     end
     
-    it "should raise an error if the value is longer than the length" do
-      @value = "XX" * @length
-      lambda { @column.format(@value) }.should raise_error(
-        Slither::FormattedStringExceedsLengthError, 
-        "The formatted value '#{@value}' in column '#{@name}' exceeds the allowed length of #{@length} chararacters."
-      )
+    describe "whose size is too long" do
+      it "should raise an error if truncate is false" do
+        @value = "XX" * @length
+        lambda { @column.format(@value) }.should raise_error(
+          Slither::FormattedStringExceedsLengthError,
+          "The formatted value '#{@value}' in column '#{@name}' exceeds the allowed length of #{@length} chararacters."
+        )
+      end
+      
+      it "should truncate from the left if truncate is true and aligned left" do
+        @column = Slither::Column.new(@name, @length, :truncate => true, :align => :left)
+        @column.format("This is too long").should == "This "
+      end
+      
+      it "should truncate from the right if truncate is true and aligned right" do
+        @column = Slither::Column.new(@name, @length, :truncate => true, :align => :right)
+        @column.format("This is too long").should == " long"
+      end
     end
     
     it "should support the integer type" do
@@ -208,4 +220,5 @@ describe Slither::Column do
       @column.format(dt).should == '08222009'
     end 
   end
+
 end

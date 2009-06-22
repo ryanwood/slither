@@ -1,6 +1,8 @@
 require 'date'
 
 class Slither
+  class ParserError < RuntimeError; end
+  
   class Column
     attr_reader :name, :length, :alignment, :type, :padding, :precision, :options
     
@@ -12,6 +14,7 @@ class Slither
       @alignment = options[:align] || :right
       @type = options[:type] || :string
       @padding = options[:padding] || :space
+      @truncate = options[:truncate] || false
       # Only used with floats, this determines the decimal places
       @precision = options[:precision] 
     end
@@ -34,6 +37,8 @@ class Slither
           end
         else value.strip
       end
+    rescue
+      raise ParserError, "The value '#{value}' could not be converted to type #{@type}: #{$!}"
     end
     
     def format(value)
@@ -90,11 +95,7 @@ class Slither
           else 
             value.to_s
         end
-        raise( 
-          Slither::FormattedStringExceedsLengthError, 
-          "The formatted value '#{result}' in column '#{@name}' exceeds the allowed length of #{@length} chararacters."
-        ) if result.length > @length
-        result
+        validate_size result
       end
 
       def assert_valid_options(options)
@@ -104,6 +105,20 @@ class Slither
         unless options[:padding].nil? || [:space, :zero].include?(options[:padding])
           raise ArgumentError, "Option :padding only accepts :space (default) or :zero"
         end
-      end    
+      end
+      
+      def validate_size(result)
+        # Handle when length is out of range
+        if result.length > @length
+          if @truncate
+            start = @alignment == :left ? 0 : -@length
+            result = result[start, @length]
+          else
+            raise Slither::FormattedStringExceedsLengthError, 
+              "The formatted value '#{result}' in column '#{@name}' exceeds the allowed length of #{@length} chararacters."
+          end
+        end
+        result
+      end
   end  
 end

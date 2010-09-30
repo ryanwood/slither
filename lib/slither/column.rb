@@ -25,11 +25,13 @@ class Slither
        
     def parse(value)
       case @type
-        when :integer: value.to_i
-        when :float, :money: value.to_f
-        when :money_with_implied_decimal:
+        when :integer
+          value.to_i
+        when :float, :money
+          value.to_f
+        when :money_with_implied_decimal
           value.to_f / 100
-        when :date:
+        when :date
           if @options[:format]
             Date.strptime(value, @options[:format])
           else
@@ -72,7 +74,7 @@ class Slither
       
       def to_s(value)
         result = case @type
-          when :date:            
+          when :date            
             # If it's a DBI::Timestamp object, see if we can convert it to a Time object
             unless value.respond_to?(:strftime)
               value = value.to_time if value.respond_to?(:to_time)
@@ -86,11 +88,11 @@ class Slither
             else
               value.to_s
             end
-          when :float:
+          when :float
             @options[:format] ? @options[:format] % value.to_f : value.to_f.to_s
-          when :money:
+          when :money
             "%.2f" % value.to_f
-          when :money_with_implied_decimal:
+          when :money_with_implied_decimal
             "%d" % (value.to_f * 100)
           else 
             value.to_s

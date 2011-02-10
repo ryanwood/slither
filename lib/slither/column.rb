@@ -56,7 +56,7 @@ class Slither
     private
     
       def format_money(value)
-         ali = @alignment == :right ? '' : ( @padding == :zero ? '0' : '-' )
+         ali = @padding == :zero ? '0' : ( @alignment == :right ? '' : '-' )
          format = @type == :money_with_implied_decimal ? "%#{ali}#{sizer}d" : "%#{ali}#{sizer}.2f"
          value = 100 * value.to_f if @type == :money_with_implied_decimal       
          result = format % value

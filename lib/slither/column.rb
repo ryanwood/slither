@@ -38,7 +38,11 @@ class Slither
           Date.strptime(value)
         end
       when :julian_date
-        Date.parse(value)
+        begin
+          Date.parse(value)
+        rescue
+          value
+        end
       else
         value.strip
       end

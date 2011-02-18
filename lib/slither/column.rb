@@ -44,9 +44,9 @@ class Slither
     end
     
     def format(value)
-      pad(formatter % to_s(value))
+      pad(formatter % _to_s(value))
     rescue
-      puts "Could not format column '#{@name}' as a '#{@type}' with formatter '#{formatter}' and value of '#{value}' (formatted: '#{to_s(value)}'). #{$!}"
+      puts "Could not format column '#{@name}' as a '#{@type}' with formatter '#{formatter}' and value of '#{value}' (formatted: '#{_to_s(value)}'). #{$!}"
     end
        
     private
@@ -72,7 +72,7 @@ class Slither
       	value.gsub(space[0], '0' * space[0].size)
       end
       
-      def to_s(value)
+      def _to_s(value)
         result = case @type
           when :date            
             # If it's a DBI::Timestamp object, see if we can convert it to a Time object

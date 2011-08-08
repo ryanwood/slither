@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 Gem::Specification.new do |s|
   s.name = %q{slither}
   s.version = "0.99.4"

@@ -50,11 +50,7 @@ class Slither
         data[column.length.to_sym] = data[column.name].size
       end
       @columns.each do |column|
-        if column.is_variable_length?
-          row += column.format(data[column.name])
-        else
-          row += column.format(data[column.name])
-        end
+        row += column.format(data[column.name])
       end
       row
     end

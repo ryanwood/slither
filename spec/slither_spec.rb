@@ -74,7 +74,7 @@ describe Slither do
     
     it "should create a parser and call parse" do
       File.stub!(:exists? => true)
-      parser = mock("parser", :null_object => true)
+      parser = mock("parser").as_null_object
       definition = mock('definition')     
       Slither.should_receive(:definition).with(:test).and_return(definition)
       Slither::Parser.should_receive(:new).with(definition, @file_name).and_return(parser)      

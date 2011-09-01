@@ -18,49 +18,77 @@ class Slither
       # Only used with floats, this determines the decimal places
       @precision = options[:precision] 
     end
+
+    def is_variable_length?
+      # For variable length fields, we set length to a symbol for another column name, rather than
+      # an integer.
+      !length.is_a?(Integer)
+    end
     
     def unpacker
-      "A#{@length}"
+      # Default types would just be defined by A#{length}
+      # Variable types would be defined by |#{column_name|
+      # We will turn those into variable unpackers in section.parse
+      if is_variable_length?
+        "[#{@length}]"
+      else
+        "A#{@length}"
+      end
     end
        
     def parse(value)
       case @type
-        when :integer
-          value.to_i
-        when :float, :money
-          value.to_f
-        when :money_with_implied_decimal
-          value.to_f / 100
-        when :date
-          if @options[:format]
-            Date.strptime(value, @options[:format])
-          else
-            Date.strptime(value)
-          end
-        else value.strip
+      when :integer
+        value.to_i
+      when :float, :money
+        value.to_f
+      when :money_with_implied_decimal
+        value.to_f / 100
+      when :date
+        if @options[:format]
+          Date.strptime(value, @options[:format])
+        else
+          Date.strptime(value)
+        end
+      when :julian_date
+        begin
+          Date.jd(value)
+        rescue
+          value
+        end
+      else
+        value.strip
       end
     rescue
       raise ParserError, "The value '#{value}' could not be converted to type #{@type}: #{$!}"
     end
     
     def format(value)
-      pad(formatter % to_s(value))
+      if is_variable_length?
+        pad(formatter(value) % _to_s(value))
+      else
+        pad(formatter % _to_s(value))
+      end
     rescue
-      puts "Could not format column '#{@name}' as a '#{@type}' with formatter '#{formatter}' and value of '#{value}' (formatted: '#{to_s(value)}'). #{$!}"
+      puts "Could not format column '#{@name}' as a '#{@type}' with formatter '#{formatter(value)}' and value of '#{value}' (formatted: '#{_to_s(value)}'). #{$!}"
     end
        
     private
     
-      def formatter
-        "%#{aligner}#{sizer}s"
+      def formatter(value=nil)
+        "%#{aligner}#{sizer(value)}s"
       end
           
       def aligner
         @alignment == :left ? '-' : ''
       end
       
-      def sizer
-        (@type == :float && @precision) ? @precision : @length
+      def sizer(value=nil)
+        if is_variable_length? && value
+          value.size
+        else
+          (@type == :float && @precision) ? @precision : @length
+        end
       end
       
       # Manually apply padding. sprintf only allows padding on numeric fields.
@@ -72,32 +100,36 @@ class Slither
       	value.gsub(space[0], '0' * space[0].size)
       end
       
-      def to_s(value)
+      def _to_s(value)
         result = case @type
-          when :date            
-            # If it's a DBI::Timestamp object, see if we can convert it to a Time object
-            unless value.respond_to?(:strftime)
-              value = value.to_time if value.respond_to?(:to_time)
-            end
-            if value.respond_to?(:strftime)        
-              if @options[:format]
-                value.strftime(@options[:format])
-              else
-                value.strftime
-              end
+        when :date            
+          # If it's a DBI::Timestamp object, see if we can convert it to a Time object
+          unless value.respond_to?(:strftime)
+            value = value.to_time if value.respond_to?(:to_time)
+          end
+          if value.respond_to?(:strftime)        
+            if @options[:format]
+              value.strftime(@options[:format])
             else
-              value.to_s
+              value.strftime
             end
-          when :float
-            @options[:format] ? @options[:format] % value.to_f : value.to_f.to_s
-          when :money
-            "%.2f" % value.to_f
-          when :money_with_implied_decimal
-            "%d" % (value.to_f * 100)
-          else 
+          else
             value.to_s
+          end
+        when :float
+          @options[:format] ? @options[:format] % value.to_f : value.to_f.to_s
+        when :money
+          "%.2f" % value.to_f
+        when :money_with_implied_decimal
+          "%d" % (value.to_f * 100)
+        else 
+          value.to_s
         end
-        validate_size result
+        if is_variable_length?
+          result
+        else
+          validate_size result
+        end
       end
 
       def assert_valid_options(options)

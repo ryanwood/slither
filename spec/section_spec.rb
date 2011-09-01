@@ -113,6 +113,19 @@ describe Slither::Section do
     #   )
     # end
   end
+
+  describe "when formatting a row with a variable length field" do    
+    before(:each) do
+      @data = { :id => 3, :name => "Ryan" }
+    end
+    
+    it "should default to string data aligned right" do
+      @section.column(:id, 5)
+      @section.column(:name_length, 2, :padding => :zero)
+      @section.column(:name, 'name_length')      
+      @section.format( @data ).should == "    304Ryan"      
+    end
+  end
   
   describe "when parsing a file" do
     before(:each) do
@@ -133,6 +146,26 @@ describe Slither::Section do
       @section.should have(5).columns
       parsed = @section.parse(@line)
       parsed.should have(4).keys
+    end
+  end
+
+  describe "when parsing a file with a variable length column" do
+    it 'should be able to read the variable length columns' do
+      @line = 'AAABB006abcabc09efgefgefgGGG'
+      @section = Slither::Section.new(:body)
+      @section.column(:a, 3)
+      @section.column(:b, 2)
+      @section.column(:c, 3)
+      @section.column(:v1, 'c')
+      @section.column(:d, 2)
+      @section.column(:v2, 'd')
+      @section.column(:g, 3)
+
+      @section.should have(7).columns
+      parsed = @section.parse(@line)
+      parsed.should have(7).keys
+      parsed[:v1].should == 'abcabc'
+      parsed[:v2].should == 'efgefgefg'
     end
   end
   

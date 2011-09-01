@@ -52,7 +52,7 @@ class Slither
         end
       when :julian_date
         begin
-          Date.parse(value)
+          Date.jd(value)
         rescue
           value
         end

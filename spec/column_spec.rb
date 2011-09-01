@@ -60,6 +60,11 @@ describe Slither::Column do
   it "should return the proper unpack value for a string" do
     @column.send(:unpacker).should == 'A5'
   end
+
+  it "should return the proper unpack value for a variable length field" do
+    @column = Slither::Column.new(@name, :foo)
+    @column.send(:unpacker).should == '[foo]'
+  end
     
   describe "when parsing a value from a file" do    
     it "should default to a string" do

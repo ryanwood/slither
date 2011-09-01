@@ -18,9 +18,22 @@ class Slither
       # Only used with floats, this determines the decimal places
       @precision = options[:precision] 
     end
+
+    def is_variable_length?
+      # For variable length fields, we set length to a symbol for another column name, rather than
+      # an integer.
+      !length.is_a?(Integer)
+    end
     
     def unpacker
-      "A#{@length}"
+      # Default types would just be defined by A#{length}
+      # Variable types would be defined by |#{column_name|
+      # We will turn those into variable unpackers in section.parse
+      if is_variable_length?
+        "[#{@length}]"
+      else
+        "A#{@length}"
+      end
     end
        
     def parse(value)
@@ -51,23 +64,31 @@ class Slither
     end
     
     def format(value)
-      pad(formatter % _to_s(value))
+      if is_variable_length?
+        pad(formatter(value) % _to_s(value))
+      else
+        pad(formatter % _to_s(value))
+      end
     rescue
-      puts "Could not format column '#{@name}' as a '#{@type}' with formatter '#{formatter}' and value of '#{value}' (formatted: '#{_to_s(value)}'). #{$!}"
+      puts "Could not format column '#{@name}' as a '#{@type}' with formatter '#{formatter(value)}' and value of '#{value}' (formatted: '#{_to_s(value)}'). #{$!}"
     end
        
     private
     
-      def formatter
-        "%#{aligner}#{sizer}s"
+      def formatter(value=nil)
+        "%#{aligner}#{sizer(value)}s"
       end
           
       def aligner
         @alignment == :left ? '-' : ''
       end
       
-      def sizer
-        (@type == :float && @precision) ? @precision : @length
+      def sizer(value=nil)
+        if is_variable_length? && value
+          value.size
+        else
+          (@type == :float && @precision) ? @precision : @length
+        end
       end
       
       # Manually apply padding. sprintf only allows padding on numeric fields.
@@ -104,7 +125,11 @@ class Slither
         else 
           value.to_s
         end
-        validate_size result
+        if is_variable_length?
+          result
+        else
+          validate_size result
+        end
       end
 
       def assert_valid_options(options)

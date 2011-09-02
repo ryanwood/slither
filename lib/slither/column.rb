@@ -44,13 +44,25 @@ class Slither
     end
     
     def format(value)
-      pad(formatter % to_s(value))
+      if @type == :money || @type == :money_with_implied_decimal
+        format_money(value)
+      else
+        pad(formatter % to_s(value))
+      end
     rescue
       puts "Could not format column '#{@name}' as a '#{@type}' with formatter '#{formatter}' and value of '#{value}' (formatted: '#{to_s(value)}'). #{$!}"
     end
        
     private
     
+      def format_money(value)
+         ali = @padding == :zero ? '0' : ( @alignment == :right ? '' : '-' )
+         format = @type == :money_with_implied_decimal ? "%#{ali}#{sizer}d" : "%#{ali}#{sizer}.2f"
+         value = 100 * value.to_f if @type == :money_with_implied_decimal       
+         result = format % value
+         validate_size result
+      end    
+
       def formatter
         "%#{aligner}#{sizer}s"
       end

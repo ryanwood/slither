@@ -24,7 +24,6 @@ class Slither
     end
 
     def parse(value)
-      puts "Attempting to parse column '#{name}' with a value of #{value.inspect}"
       case @type
         when :integer
           value.to_i

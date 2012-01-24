@@ -9,7 +9,7 @@ describe Slither do
 
   describe "when defining a format" do
     before(:each) do
-      @definition = mock('definition')
+      @definition = double('definition')
     end
 
     it "should create a new definition using the specified name and options" do
@@ -39,8 +39,8 @@ describe Slither do
     end
 
     it "should output a string" do
-      definition = mock('definition')
-      generator = mock('generator')
+      definition = double('definition')
+      generator = double('generator')
       generator.should_receive(:generate).with({})
       Slither.should_receive(:definition).with(:test).and_return(definition)
       Slither::Generator.should_receive(:new).with(definition).and_return(generator)
@@ -48,8 +48,8 @@ describe Slither do
     end
 
     it "should output a file" do
-      file = mock('file')
-      text = mock('string')
+      file = double('file')
+      text = double('string')
       file.should_receive(:write).with(text)
       File.should_receive(:open).with('file.txt', 'w').and_yield(file)
       Slither.should_receive(:generate).with(:test, {}).and_return(text)
@@ -74,8 +74,8 @@ describe Slither do
 
     it "should create a parser and call parse" do
       File.stub!(:exists? => true)
-      parser = mock("parser", :null_object => true)
-      definition = mock('definition')
+      parser = double("parser").as_null_object
+      definition = double('definition')
       Slither.should_receive(:definition).with(:test).and_return(definition)
       Slither::Parser.should_receive(:new).with(definition, @file_name).and_return(parser)
       Slither.parse(@file_name, :test)

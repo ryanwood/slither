@@ -1,7 +1,5 @@
 class Slither
   
-  VERSION = '0.99.0'
-  
   class DuplicateColumnNameError < StandardError; end
   class RequiredSectionNotFoundError < StandardError; end
   class RequiredSectionEmptyError < StandardError; end

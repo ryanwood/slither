@@ -1,4 +1,4 @@
 *.gem
-.eprj
-pkg
-coverage
+.bundle
+Gemfile.lock
+pkg/*

@@ -1,4 +1,4 @@
-class Slither
+module Slither
   class Parser
         
     def initialize(definition, file)

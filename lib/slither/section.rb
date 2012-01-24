@@ -1,4 +1,4 @@
-class Slither
+module Slither
   class Section
     attr_accessor :definition, :optional
     attr_reader :name, :columns, :options

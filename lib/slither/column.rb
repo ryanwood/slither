@@ -1,6 +1,6 @@
 require 'date'
 
-class Slither
+module Slither
   class ParserError < RuntimeError; end
 
   class Column

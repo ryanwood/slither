@@ -1,4 +1,4 @@
-class Slither  
+module Slither
   class Definition
     attr_reader :sections, :templates, :options
     

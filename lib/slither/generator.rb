@@ -1,4 +1,4 @@
-class Slither
+module Slither
   class Generator
 		
 		def initialize(definition)

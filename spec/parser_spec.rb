@@ -1,5 +1,5 @@
 require File.join(File.dirname(__FILE__), 'spec_helper')
-    
+
 describe Slither::Parser do
   before(:each) do
     @definition = mock('definition', :sections => [])
@@ -7,12 +7,12 @@ describe Slither::Parser do
     @file_name = 'test.txt'
     @parser = Slither::Parser.new(@definition, @file_name)
   end
-  
+
   it "should open and yield the source file" do
     File.should_receive(:open).with(@file_name, 'r').and_yield(@file)
     @parser.parse
   end
-  
+
   describe "when parsing sections" do
     before(:each) do
       @definition = Slither.define :test do |d|
@@ -30,7 +30,7 @@ describe Slither::Parser do
           f.trap { |line| line[0,4] == 'FOOT' }
           f.column :type, 4
           f.column :file_id, 10
-        end     
+        end
       end
       File.should_receive(:open).with(@file_name, 'r').and_yield(@file)
       @parser = Slither::Parser.new(@definition, @file_name)
@@ -46,12 +46,12 @@ describe Slither::Parser do
       )
       expected = {
         :header => [ {:type => "HEAD", :file_id => "1" }],
-        :body => [ 
+        :body => [
           {:first => "Paul", :last => "Hewson" },
           {:first => "Dave", :last => "Evans" }
         ],
         :footer => [ {:type => "FOOT", :file_id => "1" }]
-      }      
+      }
       result = @parser.parse
       result.should == expected
     end
@@ -61,14 +61,14 @@ describe Slither::Parser do
       @definition.sections[2].optional = true
       @file.should_receive(:gets).twice.and_return('      Paul    Hewson', nil)
       expected = { :body => [ {:first => "Paul", :last => "Hewson" } ] }
-      @parser.parse.should == expected      
+      @parser.parse.should == expected
     end
-      
+
     it "should raise an error if a required section is not found" do
       @file.should_receive(:gets).twice.and_return('      Ryan      Wood', nil)
       lambda { @parser.parse }.should raise_error(Slither::RequiredSectionNotFoundError, "Required section 'header' was not found.")
     end
-    
+
     # it "raise an error if a section limit is over run"
   end
 end

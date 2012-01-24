@@ -1,4 +1,4 @@
-require File.join(File.dirname(__FILE__), 'spec_helper')
+require 'slither'
 
 describe Slither::Generator do
   before(:each) do

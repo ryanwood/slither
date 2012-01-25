@@ -1,8 +1,8 @@
 require 'slither'
 
 describe Slither::Generator do
-  before(:each) do
-    @definition = Slither.define :test do |d|
+  let(:definition) do
+    Slither.define :test do |d|
       d.header do |h|
         h.trap { |line| line[0,4] == 'HEAD' }
         h.column :type, 4
@@ -19,7 +19,9 @@ describe Slither::Generator do
         f.column :file_id, 10
       end
     end
-    @data = {
+  end
+  let(:data) do
+    {
       :header => [ {:type => "HEAD", :file_id => "1" }],
       :body => [
         {:first => "Paul", :last => "Hewson" },
@@ -27,16 +29,16 @@ describe Slither::Generator do
       ],
       :footer => [ {:type => "FOOT", :file_id => "1" }]
     }
-    @generator = Slither::Generator.new(@definition)
   end
+  let(:generator) { Slither::Generator.new(definition) }
 
   it "should raise an error if there is no data for a required section" do
-    @data.delete :header
-    lambda {  @generator.generate(@data) }.should raise_error(Slither::RequiredSectionEmptyError, "Required section 'header' was empty.")
+    data.delete :header
+    lambda {  generator.generate(data) }.should raise_error(Slither::RequiredSectionEmptyError, "Required section 'header' was empty.")
   end
 
   it "should generate a string" do
     expected = "HEAD         1\n      Paul    Hewson\n      Dave     Evans\nFOOT         1"
-    @generator.generate(@data).should == expected
+    generator.generate(data).should == expected
   end
 end

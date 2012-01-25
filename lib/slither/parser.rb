@@ -22,32 +22,32 @@ module Slither
     
     private
     
-      def read_file
-        content = []
-        File.open(@file, 'r') do |f|
-          while (line = f.gets) do
-            content << line
-          end
+    def read_file
+      content = []
+      File.open(@file, 'r') do |f|
+        while (line = f.gets) do
+          content << line
         end
-        content
       end
-      
-      def fill_content(section)
-        matches = 0
-        loop do
-          line = @content.first
-          break unless section.match(line) 
-          add_to_section(section, line)
-          matches += 1
-          @content.shift
-        end
-        matches
+      content
+    end
+    
+    def fill_content(section)
+      matches = 0
+      loop do
+        line = @content.first
+        break unless section.match(line) 
+        add_to_section(section, line)
+        matches += 1
+        @content.shift
       end
-      
-      def add_to_section(section, line)
-        @parsed[section.name] = [] unless @parsed[section.name]
-        @parsed[section.name] << section.parse(line)
-      end
+      matches
+    end
+    
+    def add_to_section(section, line)
+      @parsed[section.name] = [] unless @parsed[section.name]
+      @parsed[section.name] << section.parse(line)
+    end
     
   end
 end

@@ -1,53 +1,40 @@
 class Slither
   class Parser
         
-    def initialize(definition, file)
+    def initialize(definition, file_io)
       @definition = definition
-      @file = file
+      @file = file_io
       # This may be used in the future for non-linear or repeating sections
       @mode = :linear
     end
     
     def parse()
       @parsed = {}
-      @content = read_file      
-      unless @content.empty?
+
+      @file.each_line do |line|
         @definition.sections.each do |section|
-          rows = fill_content(section)
+          rows = fill_content(line, section)
           raise(Slither::RequiredSectionNotFoundError, "Required section '#{section.name}' was not found.") unless rows > 0 || section.optional
         end
       end
+
       @parsed
     end
     
     private
     
-      def read_file
-        content = []
-        File.open(@file, 'r') do |f|
-          while (line = f.gets) do
-            content << line
-          end
-        end
-        content
-      end
-      
-      def fill_content(section)
+
+      def fill_content(line, section)
         matches = 0
         loop do
-          line = @content.first
-          break unless section.match(line) 
-          add_to_section(section, line)
+          break unless section.match(line)
+
+          @parsed[section.name] = [] unless @parsed[section.name]
+          @parsed[section.name] << section.parse(line)
           matches += 1
-          @content.shift
         end
         matches
       end
       
-      def add_to_section(section, line)
-        @parsed[section.name] = [] unless @parsed[section.name]
-        @parsed[section.name] << section.parse(line)
-      end
-    
   end
 end

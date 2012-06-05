@@ -26,9 +26,7 @@ class Slither
 
       def fill_content(line, section)
         matches = 0
-        loop do
-          break unless section.match(line)
-
+        if section.match(line)
           @parsed[section.name] = [] unless @parsed[section.name]
           @parsed[section.name] << section.parse(line)
           matches += 1

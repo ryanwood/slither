@@ -1,7 +1,7 @@
 class Slither
   class Section
     attr_accessor :definition, :optional
-    attr_reader :name, :columns, :options
+    attr_reader :name, :columns, :options, :length
     
     RESERVED_NAMES = [:spacer]
     
@@ -11,6 +11,7 @@ class Slither
       @columns = []
       @trap = options[:trap]
       @optional = options[:optional] || false
+      @length = 0
     end
     
     def column(name, length, options = {})
@@ -19,6 +20,7 @@ class Slither
       end.flatten.include?(name)
       col = Column.new(name, length, @options.merge(options))
       @columns << col
+      @length += length
       col
     end
     

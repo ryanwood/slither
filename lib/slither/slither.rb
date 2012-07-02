@@ -7,6 +7,8 @@ class Slither
   class RequiredSectionEmptyError < StandardError; end
   class FormattedStringExceedsLengthError < StandardError; end
   class ColumnMismatchError < StandardError; end
+  class LineTooLongError < StandardError; end
+  class LineTooShortError < StandardError; end
   
   
   def self.define(name, options = {}, &block)
@@ -31,13 +33,9 @@ class Slither
   
   def self.parse(filename, definition_name)
     raise ArgumentError, "File #{filename} does not exist." unless File.exists?(filename)
-    definition = definition(definition_name)
-    raise ArgumentError, "Definition name '#{definition_name}' was not found." unless definition    
 
-    File.open(filename, 'r') do |file|
-      parser = Parser.new(definition, file)
-      parser.parse
-    end
+    file_io = File.open(filename, 'r')
+    parseIo(file_io, definition_name)
   end
 
   def self.parseIo(io, definition_name)

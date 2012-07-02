@@ -9,29 +9,35 @@ class Slither
     end
     
     def parse()
-      @parsed = {}
+      parsed = {}
 
       @file.each_line do |line|
+        
         @definition.sections.each do |section|
-          rows = fill_content(line, section)
-          raise(Slither::RequiredSectionNotFoundError, "Required section '#{section.name}' was not found.") unless rows > 0 || section.optional
+          parsed = fill_content(line, section, parsed)
         end
       end
 
-      @parsed
+      @definition.sections.each do |section|
+        raise(Slither::RequiredSectionNotFoundError, "Required section '#{section.name}' was not found.") unless parsed[section.name] || section.optional
+      end
+      parsed
     end
     
     private
     
-
-      def fill_content(line, section)
-        matches = 0
+      def fill_content(line, section, parsed)
         if section.match(line)
-          @parsed[section.name] = [] unless @parsed[section.name]
-          @parsed[section.name] << section.parse(line)
-          matches += 1
+          validate_length(line, section)
+          parsed[section.name] = [] unless parsed[section.name]
+          parsed[section.name] << section.parse(line)
         end
-        matches
+        parsed
+      end
+      
+      def validate_length(line, section)
+        raise Slither::LineTooLongError, "Line too long" if line.length > section.length
+        raise Slither::LineTooShortError, "Line too short" if line.length < section.length
       end
       
   end

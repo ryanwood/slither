@@ -12,7 +12,7 @@ class Slither
       parsed = {}
 
       @file.each_line do |line|
-        
+        line.chomp!
         @definition.sections.each do |section|
           parsed = fill_content(line, section, parsed)
         end
@@ -36,8 +36,8 @@ class Slither
       end
       
       def validate_length(line, section)
-        raise Slither::LineTooLongError, "Line too long" if line.length > section.length
-        raise Slither::LineTooShortError, "Line too short" if line.length < section.length
+        raise Slither::LineTooLongError, "Line too long (#{line.length} when it should be #{section.length})" if line.length > section.length
+        raise Slither::LineTooShortError, "Line too short (#{line.length} when it should be #{section.length})" if line.length < section.length
       end
       
   end

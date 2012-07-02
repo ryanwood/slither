@@ -60,14 +60,14 @@ describe Slither::Parser do
       @definition.sections[0].optional = true
       @definition.sections[2].optional = true
       @file_io.stub(:each_line).and_yield('abc'*20).and_yield(nil)
-      lambda { @parser.parse }.should raise_error(Slither::LineTooLongError, "Line too long")
+      lambda { @parser.parse }.should raise_error(Slither::LineTooLongError)
     end
     
     it "should raise an error if the line is too short" do
       @definition.sections[0].optional = true
       @definition.sections[2].optional = true
       @file_io.stub(:each_line).and_yield('abc').and_yield(nil)
-      lambda { @parser.parse }.should raise_error(Slither::LineTooShortError, "Line too short")
+      lambda { @parser.parse }.should raise_error(Slither::LineTooShortError)
     end
     
     

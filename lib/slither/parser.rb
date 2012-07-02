@@ -12,7 +12,7 @@ class Slither
       parsed = {}
 
       @file.each_line do |line|
-        line.chomp!
+        line.chomp! if line
         @definition.sections.each do |section|
           parsed = fill_content(line, section, parsed)
         end

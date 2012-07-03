@@ -76,7 +76,7 @@ describe Slither do
       File.stub!(:exists? => true)
       file_io = mock("IO")
       parser = mock("parser")
-      definition = mock('definition')
+      definition = Slither::Definition.new
       
       File.should_receive(:open).and_return(file_io)
       Slither.should_receive(:definition).with(:test).and_return(definition)

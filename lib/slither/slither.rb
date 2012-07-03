@@ -7,8 +7,7 @@ class Slither
   class RequiredSectionEmptyError < StandardError; end
   class FormattedStringExceedsLengthError < StandardError; end
   class ColumnMismatchError < StandardError; end
-  class LineTooLongError < StandardError; end
-  class LineTooShortError < StandardError; end
+  class LineWrongSizeError < StandardError; end
   
   
   def self.define(name, options = {}, &block)
@@ -42,7 +41,7 @@ class Slither
     definition = definition(definition_name)
     raise ArgumentError, "Definition name '#{definition_name}' was not found." unless definition
     parser = Parser.new(definition, io)
-    parser.parse
+    definition.options[:by_bytes] ? parser.parse_by_bytes : parser.parse
   end
   
   private

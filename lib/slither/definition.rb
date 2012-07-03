@@ -5,7 +5,7 @@ class Slither
     def initialize(options = {})
       @sections = []
       @templates = {}
-      @options = { :align => :right }.merge(options)
+      @options = { :align => :right, :by_bytes => false }.merge(options)
     end
     
     def section(name, options = {}, &block)

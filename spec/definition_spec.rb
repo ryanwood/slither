@@ -16,11 +16,12 @@ describe Slither::Definition do
     end
   
     it "should override the default if :align is passed to the section" do
-      section = mock('section').as_null_object
-      Slither::Section.should_receive(:new).with('name', {:align => :left}).and_return(section)
       d = Slither::Definition.new
       d.options[:align].should == :right
       d.section('name', :align => :left) {}
+      section = nil
+      d.sections.each { |sec| section = sec if sec.name == 'name' }
+      section.options[:align].should eq(:left)
     end
   end
   

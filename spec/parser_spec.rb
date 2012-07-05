@@ -88,8 +88,8 @@ describe Slither::Parser do
       @parser = Slither::Parser.new(@definition, @io)
     end
     
-    it "should parse valid input with newlines at end" do
-      @io.string = "abcdeABCDE\n123  987  \n\n\r\n\r\n"
+    it "should parse valid input with newlines between lines and at end" do
+      @io.string = "abcdeABCDE\n\n\n\n123  987  \n\n\r\n\r\n"
       
       expected = {
         :body => [
@@ -114,6 +114,18 @@ describe Slither::Parser do
 
       expected = {
         :body => [ {:first => utf_str1, :last => utf_str2} ]
+      }
+      
+      @parser.parse_by_bytes.should eq(expected)
+    end
+    
+    it 'should handle mid-line newline chars' do
+      str1 = "12\n45"
+      str2 = "a\n\r\nb"
+      @io.string = (str1 + str2 + "\n" + str1 + str2)
+
+      expected = {
+        :body => [ {:first => str1, :last => str2}, {:first => str1, :last => str2} ]
       }
       
       @parser.parse_by_bytes.should eq(expected)

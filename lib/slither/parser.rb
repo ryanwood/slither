@@ -13,6 +13,7 @@ class Slither
 
       @file.each_line do |line|
         line.chomp! if line
+        next if line.empty?
         @definition.sections.each do |section|
           if section.match(line)
             validate_length(line, section)

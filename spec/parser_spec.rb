@@ -4,7 +4,7 @@ describe Slither::Parser do
   
   describe "when parsing sections" do
     before(:each) do
-      @definition = Slither.define :test do |d|
+      @definition = Slither.define :test, :by_bytes => false do |d|
         d.header do |h|
           h.trap { |line| line[0,4] == 'HEAD' }
           h.column :type, 4

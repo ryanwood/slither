@@ -76,14 +76,14 @@ describe Slither do
       File.stub!(:exists? => true)
       file_io = mock("IO")
       parser = mock("parser")
-      definition = Slither::Definition.new
+      definition = Slither::Definition.new :by_bytes => false
       
       File.should_receive(:open).and_return(file_io)
       Slither.should_receive(:definition).with(:test).and_return(definition)
-      Slither::Parser.should_receive(:new).with(definition, file_io).and_return(parser)      
-      parser.should_receive(:parse).and_return("win")
+      Slither::Parser.should_receive(:new).with(definition, file_io).and_return(parser)    
+      parser.should_receive(:parse).and_return("parse result")
       
-      Slither.parse(@file_name, :test).should eq("win")
+      Slither.parse(@file_name, :test).should eq("parse result")
     end
   end
 end

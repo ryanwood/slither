@@ -8,6 +8,7 @@ class Slither
   class FormattedStringExceedsLengthError < StandardError; end
   class ColumnMismatchError < StandardError; end
   class LineWrongSizeError < StandardError; end
+  class SectionsNotSameLengthError < StandardError; end
   
   
   def self.define(name, options = {}, &block)

@@ -22,14 +22,13 @@ describe Slither::Parser do
         end     
       end
       
-      @file_io = double("IO")
-      @parser = Slither::Parser.new(@definition, @file_io)
+      @io = StringIO.new 
+      @parser = Slither::Parser.new(@definition, @io)
     end
 
     it "should add lines to the proper sections" do
-      @file_io.should_receive(:each_line).
-        and_yield('HEAD         1').and_yield('      Paul    Hewson').
-        and_yield('      Dave     Evans').and_yield('FOOT         1').and_yield(nil)
+      @io.string = "HEAD         1\n      Paul    Hewson\n      Dave     Evans\nFOOT         1"
+
       expected = {
         :header => [ {:type => "HEAD", :file_id => "1" }],
         :body => [ 
@@ -45,27 +44,31 @@ describe Slither::Parser do
     it "should allow optional sections to be skipped" do
       @definition.sections[0].optional = true
       @definition.sections[2].optional = true
-      @file_io.stub(:each_line).and_yield('      Paul    Hewson').and_yield(nil)
+      @io.string = '      Paul    Hewson'
+
       expected = { :body => [ {:first => "Paul", :last => "Hewson" } ] }
       @parser.parse.should == expected      
     end
       
     it "should raise an error if a required section is not found" do
-      @file_io.stub(:each_line).and_yield('      Ryan      Wood').and_yield(nil)
+      @io.string = '      Ryan      Wood'
+
       lambda { @parser.parse }.should raise_error(Slither::RequiredSectionNotFoundError, "Required section 'header' was not found.")
     end
     
     it "should raise an error if the line is too long" do
       @definition.sections[0].optional = true
       @definition.sections[2].optional = true
-      @file_io.stub(:each_line).and_yield('abc'*20).and_yield(nil)
+      @io.string = 'abc'*20
+
       lambda { @parser.parse }.should raise_error(Slither::LineWrongSizeError)
     end
     
     it "should raise an error if the line is too short" do
       @definition.sections[0].optional = true
       @definition.sections[2].optional = true
-      @file_io.stub(:each_line).and_yield('abc').and_yield(nil)
+      @io.string = 'abc'
+
       lambda { @parser.parse }.should raise_error(Slither::LineWrongSizeError)
     end
     
@@ -78,49 +81,96 @@ describe Slither::Parser do
           b.trap { true }
           b.column :first, 5
           b.column :last, 5
-          b.column :eol, 1
         end   
       end
       
-      @file_io = double("IO")
-      @file_io.stub(:external_encoding).and_return(Encoding::UTF_8)
-      @parser = Slither::Parser.new(@definition, @file_io)
+      @io = StringIO.new 
+      @parser = Slither::Parser.new(@definition, @io)
     end
     
-    it "should parse valid input" do
-      return_strings = ["abcdeABCDE\n","123  987  \n"].map{|str| str.encode! Encoding::ASCII_8BIT}
-      return_strings << nil
-      @file_io.should_receive(:read).exactly(3).times.with(11).and_return(return_strings[0],return_strings[1],return_strings[2])
+    it "should parse valid input with newlines at end" do
+      @io.string = "abcdeABCDE\n123  987  \n\n\r\n\r\n"
       
       expected = {
         :body => [
-          {:first => 'abcde', :last => 'ABCDE', :eol => ''},
-          {:first => '123', :last => '987', :eol => ''}
+          {:first => 'abcde', :last => 'ABCDE'},
+          {:first => '123', :last => '987'}
           ]
       }
       
       @parser.parse_by_bytes.should eq(expected)
     end
     
-    it 'should raise error for data with incorrect length' do
-      return_strings = [ "abcdefghij".encode!(Encoding::ASCII_8BIT) ]
-      return_strings << nil
-      @file_io.should_receive(:read).with(11).and_return(return_strings[0])
+    it 'should raise error for data with incorrect line length' do
+      @io.string = "abcdefghijklmnop"
+      
       lambda { @parser.parse_by_bytes }.should raise_error(Slither::LineWrongSizeError)
     end
     
     it 'should handle utf characters' do
       utf_str1 = "\xE5\x9B\xBD45"
       utf_str2 = "ab\xE5\x9B\xBD"
-      return_strings = [(utf_str1 + utf_str2 + "\n").encode!(Encoding::ASCII_8BIT) ]
-      return_strings << nil
-      @file_io.should_receive(:read).exactly(2).times.with(11).and_return(return_strings[0],return_strings[1])
-      
+      @io.string = (utf_str1 + utf_str2)
+
       expected = {
-        :body => [ {:first => utf_str1, :last => utf_str2, :eol => ''} ]
+        :body => [ {:first => utf_str1, :last => utf_str2} ]
       }
       
       @parser.parse_by_bytes.should eq(expected)
     end
+  end
+  
+  describe 'when calling the helper method' do
+    
+    it 'remove_newlines returns true for file starting in newlines or EOF' do
+      @io = StringIO.new 
+      @parser = Slither::Parser.new(@definition, @io)
+      
+      @parser.send(:remove_newlines!).should eq(true)
+      
+      @io.string = "\nXYZ"
+      @parser.send(:remove_newlines!).should eq(true)
+      @io.string = "\r\n"
+      @parser.send(:remove_newlines!).should eq(true)
+      @io.string = "\n\n\n\nXYZ\n"
+      @parser.send(:remove_newlines!).should eq(true)
+      @io.string = ""
+      @parser.send(:remove_newlines!).should eq(true)
+      
+    end
+    
+    it 'remove_newlines returns false for any other first characters' do
+      @io = StringIO.new 
+      @parser = Slither::Parser.new(@definition, @io)
+      
+      @io.string = "XYZ\nxyz"
+      @parser.send(:remove_newlines!).should eq(false)
+      @io.string = " \nxyz"
+      @parser.send(:remove_newlines!).should eq(false)
+      @io.string = "!YZxyz\n"
+      @parser.send(:remove_newlines!).should eq(false)
+      
+    end
+    
+    it 'remove_newlines leaves first non-newline char in place' do
+      @io = StringIO.new 
+      @parser = Slither::Parser.new(@definition, @io)
+      
+      @io.string = "\n\nXYZ"
+      @parser.send(:remove_newlines!).should eq(true)
+      @io.getc.should eq("X")
+      @parser.send(:remove_newlines!).should eq(false)
+    end
+    
+    it 'newline? it is true for \n or \r and false otherwise' do
+      @parser = Slither::Parser.new(nil,nil)
+      
+      [["\n",true],["\r",true],["n",false]].each do |el|
+        @parser.send(:newline?,el[0].ord).should eq(el[1])
+      end
+      @parser.send(:newline?,nil).should eq(false)
+      @parser.send(:newline?,"").should eq(false)
+    end
+    
   end
 end

@@ -57,7 +57,7 @@ class Slither
     private
     
       def fill_content(line, section, parsed)
-        parsed[section.name] = [] unless parsed[section.name]
+        parsed[section.name] ||= []
         parsed[section.name] << section.parse(line)
         parsed
       end

@@ -76,7 +76,7 @@ describe Slither::Parser do
   
   describe "when parsing by bytes" do
     before(:each) do
-      @definition = Slither.define :test, :by_bytes => true, :encoding => Encoding::UTF_8 do |d|
+      @definition = Slither.define :test, :by_bytes => true do |d|
         d.body do |b|
           b.trap { true }
           b.column :first, 5
@@ -117,6 +117,21 @@ describe Slither::Parser do
       }
       
       @parser.parse_by_bytes.should eq(expected)
+    end
+    
+    it 'should throw exception if section lengths are different' do
+      definition = Slither.define :test, :by_bytes => true do |d|
+        d.body do |b|
+          b.column :one, 5
+        end
+        d.foot do |f|
+          f.column :only, 2
+        end   
+      end
+      
+      parser = Slither::Parser.new(definition, @io)
+      
+      lambda { parser.parse_by_bytes }.should raise_error(Slither::SectionsNotSameLengthError)
     end
   end
   

@@ -36,7 +36,7 @@ class Slither
           "All sections must have the same number of bytes for parse by bytes") if bytes != byte_length }
       
       while record = @file.read(byte_length)
-        raise(Slither::LineWrongSizeError, "newline character was not at the end of byte group") unless remove_newlines! && record.length == byte_length
+        raise(Slither::LineWrongSizeError, "newline character was not at the end of byte group (was #{@file.getc})") unless remove_newlines! && record.length == byte_length
     
         record.force_encoding @file.external_encoding
         

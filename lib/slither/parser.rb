@@ -37,7 +37,11 @@ class Slither
           "All sections must have the same number of bytes for parse by bytes") if bytes != byte_length }
       
       while record = @file.read(byte_length)
-        raise(Slither::LineWrongSizeError, "newline character was not at the end of byte group (was #{@file.getc})") unless remove_newlines! && record.length == byte_length
+        
+        unless remove_newlines! && byte_length == record.length
+          parsed_line = parse_for_error_message(record)
+          raise(Slither::LineWrongSizeError, "Line wrong size: No newline at #{byte_length} bytes. #{parsed_line}") 
+        end
     
         record.force_encoding @file.external_encoding
         
@@ -69,8 +73,7 @@ class Slither
       def remove_newlines!
         return true if @file.eof?
         b = @file.getbyte
-        if newline?(b)
-          remove_newlines!
+        if b == 10 || b == 13 && @file.getbyte == 10
           return true
         else
           @file.ungetbyte b
@@ -82,6 +85,17 @@ class Slither
         # \n or LF -> 10
         # \r or CR -> 13
         [10, 13].any?{|code| char_code == code}
+      end
+      
+      def parse_for_error_message(line)
+        parsed = ''
+        line.force_encoding @file.external_encoding
+        @definition.sections.each do |section|
+          if section.match(line)
+            parsed = section.parse_when_problem(line)
+          end
+        end
+        parsed
       end
       
   end

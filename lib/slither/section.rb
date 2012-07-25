@@ -60,6 +60,15 @@ class Slither
       row
     end
     
+    def parse_when_problem(line)
+      line_data = line.unpack(unpacker)
+      row = ''
+      @columns.each_with_index do |c, i|
+        row << "\n'#{c.name}':'#{c.parse(line_data[i])}'" unless RESERVED_NAMES.include?(c.name)
+      end
+      row
+    end
+    
     def match(raw_line)
       raw_line.nil? ? false : @trap.call(raw_line)
     end

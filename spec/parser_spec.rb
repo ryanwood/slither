@@ -60,7 +60,7 @@ describe Slither::Parser do
       @definition.sections[0].optional = true
       @definition.sections[2].optional = true
       @io.string = 'abc'*20
-
+      
       lambda { @parser.parse }.should raise_error(Slither::LineWrongSizeError)
     end
     
@@ -88,23 +88,18 @@ describe Slither::Parser do
       @parser = Slither::Parser.new(@definition, @io)
     end
     
-    it "should parse valid input with newlines between lines and at end" do
-      @io.string = "abcdeABCDE\n\n\n\n123  987  \n\n\r\n\r\n"
-      
-      expected = {
-        :body => [
-          {:first => 'abcde', :last => 'ABCDE'},
-          {:first => '123', :last => '987'}
-          ]
-      }
-      
-      @parser.parse_by_bytes.should eq(expected)
-    end
-    
     it 'should raise error for data with incorrect line length' do
       @io.string = "abcdefghijklmnop"
       
-      lambda { @parser.parse_by_bytes }.should raise_error(Slither::LineWrongSizeError)
+      lambda { @parser.parse_by_bytes }.should raise_error(Slither::RequiredSectionNotFoundError, "Required section 'header' was not found.")
+      #lambda { @parser.parse_by_bytes }.should raise_error(Slither::LineWrongSizeError)
+    end
+    
+    it 'should raise error for data with incorrect line length' do
+      @io.string = "abc"
+      
+      lambda { @parser.parse_by_bytes }.should raise_error(Slither::RequiredSectionNotFoundError, "Required section 'header' was not found.")
+      #lambda { @parser.parse_by_bytes }.should raise_error(Slither::LineWrongSizeError)
     end
     
     it 'should handle utf characters' do
@@ -183,7 +178,7 @@ describe Slither::Parser do
       @io = StringIO.new 
       @parser = Slither::Parser.new(@definition, @io)
       
-      @io.string = "\n\nXYZ"
+      @io.string = "\nXYZ"
       @parser.send(:remove_newlines!).should eq(true)
       @io.getc.should eq("X")
       @parser.send(:remove_newlines!).should eq(false)

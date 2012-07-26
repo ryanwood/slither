@@ -67,7 +67,10 @@ class Slither
       end
       
       def validate_length(line, section)
-        raise Slither::LineWrongSizeError, "Line wrong size: (#{line.length} when it should be #{section.length})" if line.length != section.length
+        if line.length != section.length
+          parsed_line = parse_for_error_message(line)
+          raise Slither::LineWrongSizeError, "Line wrong size: (#{line.length} when it should be #{section.length}. #{parsed_line})" 
+        end
       end
       
       def remove_newlines!

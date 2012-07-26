@@ -61,10 +61,10 @@ class Slither
     end
     
     def parse_when_problem(line)
-      line_data = line.unpack(unpacker)
+      line_data = line.unpack(@columns.map { |c| "a#{c.length}" }.join(''))
       row = ''
       @columns.each_with_index do |c, i|
-        row << "\n'#{c.name}':'#{c.parse(line_data[i])}'" unless RESERVED_NAMES.include?(c.name)
+        row << "\n'#{c.name}':'#{line_data[i]}'" unless RESERVED_NAMES.include?(c.name)
       end
       row
     end

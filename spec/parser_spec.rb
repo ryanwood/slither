@@ -76,7 +76,7 @@ describe Slither::Parser do
   
   describe "when parsing by bytes" do
     before(:each) do
-      @definition = Slither.define :test, :by_bytes => true do |d|
+      @definition = Slither.define :test do |d|
         d.body do |b|
           b.trap { true }
           b.column :first, 5
@@ -118,7 +118,7 @@ describe Slither::Parser do
         :body => [ {:first => utf_str1, :last => utf_str2} ]
       }
       
-      @parser.parse_by_bytes.should eq(expected)
+      Slither.parseIo(@io, :test).should eq(expected)
     end
     
     it 'should handle mid-line newline chars' do
@@ -130,7 +130,7 @@ describe Slither::Parser do
         :body => [ {:first => str1, :last => str2}, {:first => str1, :last => str2} ]
       }
       
-      @parser.parse_by_bytes.should eq(expected)
+      Slither.parseIo(@io, :test).should eq(expected)
     end
     
     it 'should throw exception if section lengths are different' do

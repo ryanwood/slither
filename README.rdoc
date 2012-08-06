@@ -70,6 +70,38 @@ or parse files already in that format into a nested hash:
 
   parsed_data = Slither.parse('infile.txt', :test).inspect
 
+== Repeating Sections
+
+To enable repeating sections simple define the prefix you what for the repeating keys in the hash and pass the
+repeatable option to the section that is repeatable.
+
+    Slither.define :sac_bee, :repeater => 'r' do |d|
+      d.header do |h|
+        h.trap { |line| line[0] == '1' }
+        h.column :header_begin, 1
+        h.column :destination
+        h.column :payment_deposit_date, 6
+      end
+      d.payment_records :repeatable => true do |pr|
+        pr.trap { |line| line[0] == '6' }
+        pr.column :payment_amount, 10
+      end
+      d.batch_trailer_record :repeatable => true do |btr|
+        btr.trap { |line| line[0] == '7' }
+        btr.column :beginning_of_batch_trailer_record, 1
+        btr.column :total_count_of_records_in_batch, 4
+        btr.column :total_payment_amount_of_batch, 10
+      end
+      d.file_trailer_record do |ftr|
+        ftr.trap { |line| line[0] == '8' }
+        ftr.column :beginning_of_trailer_record, 1
+        ftr.column :total_count_of_records, 5
+        ftr.column :total_payment_amount, 10
+      end
+    end
+
+The data will be parsed into a hash as above but will have keys like "payment_records#{repeater}{num}" for each repeating section.
+
 == INSTALL:
 
 sudo gem install slither

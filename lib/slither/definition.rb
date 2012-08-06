@@ -1,10 +1,11 @@
 class Slither  
   class Definition
-    attr_reader :sections, :templates, :options
+    attr_reader :sections, :templates, :options, :repeater
     
     def initialize(options = {})
       @sections = []
       @templates = {}
+      @repeater = options[:repeater]  || 'r'
       @options = { :align => :right }.merge(options)
     end
     
@@ -24,6 +25,18 @@ class Slither
       section = Slither::Section.new(name, @options.merge(options))
       yield(section)
       @templates[name] = section
+    end
+    
+    def find_section(name)
+      @sections.select{|section| section.name.to_sym == name}.first rescue nil
+    end
+    
+    def repeatable_sections
+      @sections.select{|section| section.repeatable}
+    end
+    
+    def non_repeatable_sections
+      @sections.select{|section| !section.repeatable}
     end
     
     def method_missing(method, *args, &block)

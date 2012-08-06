@@ -1,6 +1,6 @@
 class Slither
   class Section
-    attr_accessor :definition, :optional
+    attr_accessor :definition, :optional, :repeatable
     attr_reader :name, :columns, :options
     
     RESERVED_NAMES = [:spacer]
@@ -11,6 +11,7 @@ class Slither
       @columns = []
       @trap = options[:trap]
       @optional = options[:optional] || false
+      @repeatable = options[:repeatable] || false
     end
     
     def column(name, length, options = {})

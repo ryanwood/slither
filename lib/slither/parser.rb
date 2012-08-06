@@ -11,7 +11,7 @@ class Slither
     def parse()
       @parsed = {}
       @content = read_file      
-      unless @content.empty?
+      until @content.empty?
         @definition.sections.each do |section|
           rows = fill_content(section)
           raise(Slither::RequiredSectionNotFoundError, "Required section '#{section.name}' was not found.") unless rows > 0 || section.optional

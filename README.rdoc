@@ -72,7 +72,7 @@ or parse files already in that format into a nested hash:
 
 == Repeating Sections
 
-To enable repeating sections simple define the prefix you what for the repeating keys in the hash and pass the
+To enable repeating sections simple define the prefix you want for the repeating keys in the hash and pass the
 repeatable option to the section that is repeatable.
 
     Slither.define :sac_bee, :repeater => 'r' do |d|

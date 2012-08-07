@@ -90,22 +90,19 @@ describe Slither::Parser do
     
     it 'should raise error for data with line length too long' do
       @io.string = "abcdefghijklmnop"
-      
-      #lambda { @parser.parse_by_bytes }.should raise_error(Slither::RequiredSectionNotFoundError, "Required section 'header' was not found.")
+
       lambda { @parser.parse_by_bytes }.should raise_error(Slither::LineWrongSizeError)
     end
     
     it 'should raise error for data with line length too short' do
       @io.string = "abc"
-      
-      #lambda { @parser.parse_by_bytes }.should raise_error(Slither::RequiredSectionNotFoundError, "Required section 'header' was not found.")
+
       lambda { @parser.parse_by_bytes }.should raise_error(Slither::LineWrongSizeError)
     end
     
     it 'should raise error for data with empty lines' do
       @io.string = "abcdefghij\r\n\n\n\n"  # 10 then 3
-      
-      #lambda { @parser.parse_by_bytes }.should raise_error(Slither::RequiredSectionNotFoundError, "Required section 'header' was not found.")
+
       lambda { @parser.parse_by_bytes }.should raise_error(Slither::LineWrongSizeError)
     end
     

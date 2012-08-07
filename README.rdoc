@@ -11,11 +11,12 @@ A simple, clean DSL for describing, writing, and parsing fixed-width text files.
 * Easy DSL syntax
 * Can parse and format fixed width files
 * Templated sections for reuse
+* Helpful error messages for invalid data
 
 == SYNOPSIS:
 
   # Create a Slither::Defintion to describe a file format
-  Slither.define :simple do |d|
+  Slither.define :simple, :by_bytes => false do |d|
   
     # This is a template section that can be reused in other sections
     d.template :boundary do |t|
@@ -24,7 +25,7 @@ A simple, clean DSL for describing, writing, and parsing fixed-width text files.
     end 
    
     # Create a header section
-    d.header, :align => :left do |header|      
+    d.header :align => :left do |header|      
       # The trap tells Slither which lines should fall into this section
       header.trap { |line| line[0,4] == 'HEAD' }
       # Use the boundary template for the columns
@@ -47,6 +48,10 @@ A simple, clean DSL for describing, writing, and parsing fixed-width text files.
   end
   
 Supported types are: string, integer, date, float, money, and money_with_implied_decimal.
+
+Use :by_bytes => true (default) to allow newlines within rows and specify length in bytes.
+Use :by_bytes => false to support sections of different lengths and length specification
+in number of characters.
   
 Then either feed it a nested struct with data values to create the file in the defined format:
 

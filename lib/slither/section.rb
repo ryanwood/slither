@@ -35,7 +35,8 @@ class Slither
     def template(name)
       template = @definition.templates[name]
       raise ArgumentError, "Template #{name} not found as a known template." unless template
-      @columns = @columns + template.columns
+      @columns += template.columns
+      @length += template.length
       # Section options should trump template options
       @options = template.options.merge(@options)
     end

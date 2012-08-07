@@ -69,11 +69,13 @@ Then either feed it a nested struct with data values to create the file in the d
   puts Slither.generate(:simple, test_data)
   
   # Writes the file
-  Slither.write('outfile.txt', :simple, test_data)
+  Slither.write(output_filename, :simple, test_data)
 
 or parse files already in that format into a nested hash:
 
-  parsed_data = Slither.parse('infile.txt', :test).inspect
+  parsed_data = Slither.parse(input_filename, :simple)
+	parsed_data = Slither.parseIo(io_object, :simple)
+
 
 == INSTALL:
 

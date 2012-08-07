@@ -4,7 +4,7 @@ class Slither
     def initialize(definition, file)
       @definition = definition
       @repeat_counter = 1
-      @repeat_section_name = nil
+      @repeating_section = nil
       @file = file
       # This may be used in the future for non-linear or repeating sections
       @mode = :linear
@@ -49,16 +49,19 @@ class Slither
       
       def fill_content(section, repeatable=false)
         matches = 0
+        repeat_section_name = nil
+
         loop do
           line = @content.first
           break unless section.match(line) 
           if repeatable
-            unless @repeat_section == section.name
-              @repeat_section_name = "#{section.name}#{@definition.repeater}#{@repeat_counter}"
+            unless @repeating_section == section.name
+              @repeating_section = section.name
+              repeat_section_name = "#{section.name}#{@definition.repeater}#{@repeat_counter}"
               @repeat_counter += 1
             end
           end
-          add_to_section(section, line, repeatable)
+          add_to_section(section, line, repeatable, repeat_section_name)
           matches += 1
           @content.shift
         end
@@ -73,8 +76,8 @@ class Slither
         matches
       end
       
-      def add_to_section(section, line, repeatable)
-        key = repeatable ? @repeat_section_name : section.name
+      def add_to_section(section, line, repeatable, repeat_section_name)
+        key = repeatable ? repeat_section_name.to_sym : section.name
         @parsed[key] = [] unless @parsed[key]
         @parsed[key] << section.parse(line)
       end

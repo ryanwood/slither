@@ -23,6 +23,74 @@ describe Slither::Definition do
       d.section('name', :align => :left) {}
     end
   end
+
+  describe "when specifying repeater" do
+    it "should have a repeater option" do
+      d = Slither::Definition.new :repeater => 'r'
+      d.repeater.should == 'r'
+    end
+
+    it "should should default repeater to r" do
+      d = Slither::Definition.new
+      d.repeater.should == 'r'
+    end
+
+    it "should should allow you get all repeatable sections" do
+      d = Slither::Definition.new
+
+      d.section :header do |section|
+      end
+
+      d.section :body, :repeatable => true do |section|
+      end
+
+      d.section :footer do |section|
+      end
+
+      d.repeatable_sections.count.should eq 1
+    end
+
+    it "should should allow you get all non repeatable sections" do
+      d = Slither::Definition.new
+
+      d.section :header do |section|
+      end
+
+      d.section :body, :repeatable => true do |section|
+      end
+
+      d.section :footer do |section|
+      end
+
+      d.non_repeatable_sections.count.should eq 2
+    end
+
+    it "should should allow you get all non repeatable sections" do
+      d = Slither::Definition.new
+
+      d.section :header do |section|
+      end
+
+      d.section :body, :repeatable => true do |section|
+      end
+
+      d.section :footer do |section|
+      end
+
+      d.non_repeatable_sections.count.should eq 2
+    end
+
+    it "should allow you get a section by name" do
+      d = Slither::Definition.new
+
+      d.section :header do |section|
+      end
+
+      section = d.find_section(:header)
+      section.should be_a(Slither::Section)
+      section.name.should eq :header
+    end
+  end
   
   describe "when creating a section" do
     before(:each) do

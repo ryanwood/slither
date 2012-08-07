@@ -5,7 +5,7 @@ class Slither
     def initialize(options = {})
       @sections = []
       @templates = {}
-      @repeater = options[:repeater]  || 'r'
+      @repeater = options[:repeater] || 'r'
       @options = { :align => :right }.merge(options)
     end
     

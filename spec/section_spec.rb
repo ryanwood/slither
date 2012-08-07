@@ -4,7 +4,15 @@ describe Slither::Section do
   before(:each) do
     @section = Slither::Section.new(:body)
   end
-  
+
+  it "should have a repeatable option" do
+    @section.repeatable.should_not be_nil
+  end
+
+  it "should default the repeatable option to false" do
+    @section.repeatable.should eq false
+  end
+
   it "should have no columns after creation" do
     @section.columns.should be_empty
   end

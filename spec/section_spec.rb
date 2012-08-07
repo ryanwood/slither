@@ -75,6 +75,7 @@ describe Slither::Section do
     end
     
     it "should add the template columns to the current column list" do
+      @template.should_receive(:length).and_return(0)
       @section.template :test
       @section.should have(3).columns
     end
@@ -82,6 +83,7 @@ describe Slither::Section do
     it "should merge the template option" do
        @section = Slither::Section.new(:body, :align => :left)
        @section.definition = @definition
+       @template.should_receive(:length).and_return(0)
        @template.stub! :options => {:align => :right}
        @section.template :test
        @section.options.should == {:align => :left}

@@ -1,7 +1,7 @@
 class Slither
   class Section
     attr_accessor :definition, :optional
-    attr_reader :name, :columns, :options
+    attr_reader :name, :columns, :options, :length
     
     RESERVED_NAMES = [:spacer]
     
@@ -11,6 +11,7 @@ class Slither
       @columns = []
       @trap = options[:trap]
       @optional = options[:optional] || false
+      @length = 0
     end
     
     def column(name, length, options = {})
@@ -19,6 +20,7 @@ class Slither
       end.flatten.include?(name)
       col = Column.new(name, length, @options.merge(options))
       @columns << col
+      @length += length
       col
     end
     
@@ -33,7 +35,8 @@ class Slither
     def template(name)
       template = @definition.templates[name]
       raise ArgumentError, "Template #{name} not found as a known template." unless template
-      @columns = @columns + template.columns
+      @columns += template.columns
+      @length += template.length
       # Section options should trump template options
       @options = template.options.merge(@options)
     end
@@ -54,6 +57,15 @@ class Slither
       row = {}
       @columns.each_with_index do |c, i|
         row[c.name] = c.parse(line_data[i]) unless RESERVED_NAMES.include?(c.name)
+      end
+      row
+    end
+    
+    def parse_when_problem(line)
+      line_data = line.unpack(@columns.map { |c| "a#{c.length}" }.join(''))
+      row = ''
+      @columns.each_with_index do |c, i|
+        row << "\n'#{c.name}':'#{line_data[i]}'" unless RESERVED_NAMES.include?(c.name)
       end
       row
     end

@@ -16,18 +16,19 @@ describe Slither::Definition do
     end
   
     it "should override the default if :align is passed to the section" do
-      section = mock('section', :null_object => true)
-      Slither::Section.should_receive(:new).with('name', {:align => :left}).and_return(section)
       d = Slither::Definition.new
       d.options[:align].should == :right
       d.section('name', :align => :left) {}
+      section = nil
+      d.sections.each { |sec| section = sec if sec.name == 'name' }
+      section.options[:align].should eq(:left)
     end
   end
   
   describe "when creating a section" do
     before(:each) do
       @d = Slither::Definition.new
-      @section = mock('section', :null_object => true)
+      @section = mock('section').as_null_object
     end
     
     it "should create and yield a new section object" do
@@ -57,7 +58,7 @@ describe Slither::Definition do
   describe "when creating a template" do
     before(:each) do
       @d = Slither::Definition.new
-      @section = mock('section', :null_object => true)
+      @section = mock('section').as_null_object
     end
     
     it "should create a new section" do

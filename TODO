@@ -11,3 +11,4 @@
 == 1.x
 
 * Alternate Section Flow (other than linear), i.e. repeatable sections (think batch)
+* Equivalent of parse by bytes, but with chars.  Use "io.gets nil, num_chars_per_line"

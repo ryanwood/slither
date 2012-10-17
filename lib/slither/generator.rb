@@ -19,7 +19,7 @@ class Slither
   	      raise(Slither::RequiredSectionEmptyError, "Required section '#{section.name}' was empty.") unless section.optional
 	      end
 	    end
-	    @builder.join("\n")
+	    @builder.join(@definition.options[:new_line] || "\n")
 		end
 		
 	end

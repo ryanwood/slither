@@ -45,7 +45,7 @@ class Slither
     end
 
     def format(value)
-      pad(formatter % (value.nil? && @default.present? ? to_s(@default) : to_s(value) ) )
+      pad(formatter % parsed_value )
     rescue
       puts "Could not format column '#{@name}' as a '#{@type}' with formatter '#{formatter}' and value of '#{value}' (formatted: '#{to_s(value)}'). #{$!}"
     end
@@ -58,6 +58,10 @@ class Slither
 
       def aligner
         @alignment == :left ? '-' : ''
+      end
+      
+      def parsed_value
+        value.nil? && @default.present? ? to_s(@default) : to_s(value)
       end
 
       def sizer

@@ -45,7 +45,7 @@ class Slither
     end
 
     def format(value)
-      pad(formatter % (value.nil? && @default.present? ? to_s(value) : to_s(@default)) )
+      pad(formatter % (value.nil? && @default.present? ? to_s(@default) : to_s(value) ) )
     rescue
       puts "Could not format column '#{@name}' as a '#{@type}' with formatter '#{formatter}' and value of '#{value}' (formatted: '#{to_s(value)}'). #{$!}"
     end

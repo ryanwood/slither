@@ -15,6 +15,7 @@ class Slither
       @type = options[:type] || :string
       @padding = options[:padding] || :space
       @truncate = options[:truncate] || false
+      @default = options[:default]
       # Only used with floats, this determines the decimal places
       @precision = options[:precision]
     end
@@ -44,7 +45,7 @@ class Slither
     end
 
     def format(value)
-      pad(formatter % to_s(value))
+      pad(formatter % value? ? to_s(value): @default )
     rescue
       puts "Could not format column '#{@name}' as a '#{@type}' with formatter '#{formatter}' and value of '#{value}' (formatted: '#{to_s(value)}'). #{$!}"
     end

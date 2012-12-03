@@ -45,7 +45,7 @@ class Slither
     end
 
     def format(value)
-      pad(formatter % parsed_value )
+      pad(formatter % version_secure_format(value))
     rescue
       puts "Could not format column '#{@name}' as a '#{@type}' with formatter '#{formatter}' and value of '#{value}' (formatted: '#{to_s(value)}'). #{$!}"
     end
@@ -60,7 +60,19 @@ class Slither
         @alignment == :left ? '-' : ''
       end
       
-      def parsed_value
+      def version_secure_format(value)
+        if RUBY_VERSION < "1.9" && defined?(ActiveSupport)
+          parsed_value(value).mb_chars.send(alignment_secure_method,sizer)
+        else
+          formatter % parsed_value(value)
+        end
+      end
+      
+      def alignment_secure_method
+        @alignment == :left ? :ljust : :rjust; 
+      end
+      
+      def parsed_value(value)
         value.nil? && @default.present? ? to_s(@default) : to_s(value)
       end
 

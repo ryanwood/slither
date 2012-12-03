@@ -45,7 +45,7 @@ class Slither
     end
 
     def format(value)
-      pad(formatter % version_secure_format(value))
+      pad(version_secure_format(value))
     rescue
       puts "Could not format column '#{@name}' as a '#{@type}' with formatter '#{formatter}' and value of '#{value}' (formatted: '#{to_s(value)}'). #{$!}"
     end

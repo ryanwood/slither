@@ -37,7 +37,7 @@ A simple, clean DSL for describing, writing, and parsing fixed-width text files.
       body.column :id, 10, :type => :integer
       body.column :name, 10, :align => :left
       body.spacer 3
-      body.column :state, 2
+      body.column :state, 2 { |value| value.upcase }
     end
         
     d.footer do |footer|
@@ -52,7 +52,10 @@ Supported types are: string, integer, date, float, money, and money_with_implied
 Use :by_bytes => true (default) to allow newlines within rows and specify length in bytes.
 Use :by_bytes => false to support sections of different lengths and length specification
 in number of characters.
-  
+
+A column definition may be passed a block that allows for further formatting or
+normalisation of the read or written value.
+
 Then either feed it a nested struct with data values to create the file in the defined format:
 
   test_data = {

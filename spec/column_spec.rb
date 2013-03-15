@@ -105,7 +105,14 @@ describe Slither::Column do
       dt = @column.parse('08222009')
       dt.should be_a(Date)
       dt.to_s.should == '2009-08-22'
-    end   
+    end
+
+    it "should use a formatting block if available" do
+      @column = Slither::Column.new(:name, 10, :type => :string) { |value| value.upcase }
+      st = @column.parse('john smith')
+      st.should be_a(String)
+      st.should == 'JOHN SMITH'
+    end
   end
   
   describe "when applying formatting options" do
@@ -219,6 +226,11 @@ describe Slither::Column do
       @column = Slither::Column.new(:date, 8, :type => :date, :format => "%m%d%Y")
       @column.format(dt).should == '08222009'
     end 
+
+    it "should support a formatting block" do
+      @column = Slither::Column.new(:name, 10, :type => :string) { |value| value.upcase }
+      @column.format('john smith').should == 'JOHN SMITH'
+    end    
   end
 
 end

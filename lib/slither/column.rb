@@ -6,7 +6,7 @@ class Slither
   class Column
     attr_reader :name, :length, :alignment, :type, :padding, :precision, :options
 
-    def initialize(name, length, options = {})
+    def initialize(name, length, options = {}, &block)
       assert_valid_options(options)
       @name = name
       @length = length
@@ -17,6 +17,7 @@ class Slither
       @truncate = options[:truncate] || false
       # Only used with floats, this determines the decimal places
       @precision = options[:precision]
+      @block_formatter = block
     end
 
     def unpacker
@@ -24,21 +25,23 @@ class Slither
     end
 
     def parse(value)
-      case @type
-        when :integer
-          value.to_i
-        when :float, :money
-          value.to_f
-        when :money_with_implied_decimal
-          value.to_f / 100
-        when :date
-          if @options[:format]
-            Date.strptime(value, @options[:format])
-          else
-            Date.strptime(value)
-          end
-        else value.strip
-      end
+      coerced_value = 
+        case @type
+          when :integer
+            value.to_i
+          when :float, :money
+            value.to_f
+          when :money_with_implied_decimal
+            value.to_f / 100
+          when :date
+            if @options[:format]
+              Date.strptime(value, @options[:format])
+            else
+              Date.strptime(value)
+            end
+          else value.strip
+        end
+      @block_formatter ? @block_formatter.call(coerced_value) : coerced_value
     rescue
       raise ParserError, "Error parsing column ''#{name}'. The value '#{value}' could not be converted to type #{@type}: #{$!}"
     end
@@ -101,6 +104,7 @@ class Slither
           else
             value.to_s
         end
+        result = @block_formatter.call(result) if @block_formatter
         validate_size result
       end
 

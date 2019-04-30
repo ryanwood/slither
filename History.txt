@@ -1,9 +1,15 @@
-  
+== 0.99.6 / 2019-04-30
+
+* Removed rdoc from gemspec
+* Updated authors in gemspec
+* Added Gemfile for bundler support
+* Defined rspec development dependency version in gemspec
+
 == 0.99.2 / 2009-04-28
 
 * Added better support for float formatting
 * Added the money_with_implied_decimal type
-  
+
 == 0.99.1 / 2009-04-22
 
 * Make the missing method build a column  i.e. body.record_type 1

@@ -2,8 +2,7 @@
 
 module DefinitionHelper
   def simple_definition
-    Slither.define :simple, :by_bytes => false do |d|
-
+    Slither.define :simple, by_bytes: false do |d|
       # This is a template section that can be reused in other sections
       d.template :boundary do |t|
         t.column :record_type, 4
@@ -11,23 +10,23 @@ module DefinitionHelper
       end
 
       # Create a header section
-      d.header :align => :left do |header|
+      d.header align: :left do |header|
         # The trap tells Slither which lines should fall into this section
-        header.trap { |line| line[0,4] == 'HEAD' }
+        header.trap { |line| line[0, 4] == "HEAD" }
         # Use the boundary template for the columns
         header.template :boundary
       end
 
       d.body do |body|
-        body.trap { |line| line[0,4] =~ /[^(HEAD|FOOT)]/ }
-        body.column :id, 10, :type => :integer
-        body.column :name, 10, :align => :left
+        body.trap { |line| line[0, 4] =~ /[^(HEAD|FOOT)]/ }
+        body.column :id, 10, type: :integer
+        body.column :name, 10, align: :left
         body.spacer 3
         body.column :state, 2
       end
 
       d.footer do |footer|
-        footer.trap { |line| line[0,4] == 'FOOT' }
+        footer.trap { |line| line[0, 4] == "FOOT" }
         footer.template :boundary
         footer.column :record_count, 10
       end
@@ -35,14 +34,22 @@ module DefinitionHelper
   end
 
   def simple_definition_test_data
-    {
-      :body => [
-        { :id => 12, :name => "Ryan", :state => 'SC' },
-        { :id => 23, :name => "Joe", :state => 'VA' },
-        { :id => 42, :name => "Tommy", :state => 'FL' },
+   {
+      header: [
+        { record_type: "HEAD", company_id: "ABC" }
       ],
-      :header => { :record_type => 'HEAD', :company_id => 'ABC'  },
-      :footer => { :record_type => 'FOOT', :company_id => 'ABC'  }
+      body: [
+        { id: 12, name: "Ryan", state: "SC" },
+        { id: 23, name: "Joe", state: "VA" },
+        { id: 42, name: "Tommy", state: "FL" }
+      ],
+      footer: [
+        { record_type: "FOOT", company_id: "ABC", record_count: "record" }
+      ]
     }
+  end
+
+  def simple_definition_file
+    "spec/fixtures/simple_file"
   end
 end

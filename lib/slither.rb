@@ -1,5 +1,10 @@
 # frozen_string_literal: true
 
+require_relative 'slither/column'
+require_relative 'slither/definition'
+require_relative 'slither/generator'
+require_relative 'slither/parser'
+require_relative 'slither/section'
 require_relative "slither/version"
 
 module Slither

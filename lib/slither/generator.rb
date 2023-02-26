@@ -1,10 +1,10 @@
-class Slither
+module Slither
   class Generator
-		
+
 		def initialize(definition)
 			@definition = definition
 		end
-		
+
 		def generate(data)
 	    @builder = []
 	    @definition.sections.each do |section|
@@ -21,6 +21,6 @@ class Slither
 	    end
 	    @builder.join("\n")
 		end
-		
+
 	end
 end

@@ -1,87 +1,98 @@
+# frozen_string_literal: true
+
 RSpec.describe Slither do
-  before(:each) do
-    @name = :doc
-    @options = { :align => :left }
-  end
+  subject { described_class }
 
-  describe "when defining a format" do
-    let!(:definition) do
-      double("definition")
+  let(:name) { :doc }
+  let(:options) { { align: :left } }
+
+  describe ".define" do
+    it "creates a new definition using the specified name and options" do
+      definition = double("definition")
+
+      expect(subject).to receive(:define).with(name, options).and_return(definition)
+
+      subject.define(name, options)
     end
 
-    it "should create a new definition using the specified name and options" do
-      expect(described_class).to receive(:define).with(@name, @options).and_return(definition)
-
-      Slither.define(@name , @options)
-    end
-
-    it "should pass the definition to the block" do
+    it "pass the definition to the block" do
       yielded = nil
-      Slither.define(@name) do |y|
+
+      described_class.define(name) do |y|
         yielded = y
       end
-      yielded.should be_a( Slither::Definition )
+
+      expect(yielded).to be_a(Slither::Definition)
     end
 
-    it "should add to the internal definition count" do
-      Slither.definitions.clear
-      Slither.should have(0).definitions
-      Slither.define(@name , @options) {}
-      Slither.should have(1).definitions
+    it "adds the definition to the internal definition count" do
+      expect do
+        subject.define("new_definition", options) {}
+      end.to change { subject.send(:definitions).count }.by(1)
     end
   end
 
-  describe "when creating file from data" do
+  describe ".generate" do
     it "should raise an error if the definition name is not found" do
-      lambda { Slither.generate(:not_there, {}) }.should raise_error(ArgumentError)
+      expect do
+        subject.generate(:not_found_definition, {})
+      end.to raise_error(ArgumentError)
     end
 
     it "should output a string" do
-      definition = mock('definition')
-      generator = mock('generator')
-      generator.should_receive(:generate).with({})
-      Slither.should_receive(:definition).with(:test).and_return(definition)
-      Slither::Generator.should_receive(:new).with(definition).and_return(generator)
-      Slither.generate(:test, {})
-    end
+      simple_definition
 
-    it "should output a file" do
-  	  file = mock('file')
-  	  text = mock('string')
-  	  file.should_receive(:write).with(text)
-  	  File.should_receive(:open).with('file.txt', 'w').and_yield(file)
-  	  Slither.should_receive(:generate).with(:test, {}).and_return(text)
-      Slither.write('file.txt', :test, {})
-  	end
+      expect(
+        subject.generate(:simple, simple_definition_test_data)
+      ).to be_a(String)
+    end
   end
 
-  describe "when parsing a file" do
-    before(:each) do
-      @file_name = 'file.txt'
+  describe ".write" do
+    let(:file_name) { "file.txt" }
+
+    it "write a file" do
+      simple_definition
+
+      file = double("file")
+      allow(File).to receive(:open).with(file_name, "w").and_yield(file)
+      expect(file).to receive(:write)
+
+      subject.write(file_name, :simple, simple_definition_test_data)
+    end
+  end
+
+  describe ".parse" do
+    let(:file_name) { "file.txt" }
+
+    it "raise and error if the file does not exists" do
+      expect do
+        subject.parse(file_name, :test, {})
+      end.to raise_error(ArgumentError)
     end
 
-    it "should check the file exists" do
-      lambda { Slither.parse(@file_name, :test, {}) }.should raise_error(ArgumentError)
-    end
+    context "when the file is found" do
+      before do
+        allow(File).to receive(:exists?).and_return(true)
+      end
 
-    it "should raise an error if the definition name is not found" do
-      Slither.definitions.clear
-      File.stub!(:exists? => true)
-      lambda { Slither.parse(@file_name, :test, {}) }.should raise_error(ArgumentError)
-    end
+      context "and the definition is not found" do
+        it "raises an error due to the definition name not being found" do
+          expect do
+            subject.parse(file_name, :test, {})
+          end.to raise_error(ArgumentError)
+        end
+      end
 
-    it "should create a parser and call parse" do
-      File.stub!(:exists? => true)
-      file_io = mock("IO")
-      parser = mock("parser")
-      definition = Slither::Definition.new :by_bytes => false
+      context "and the definition is found" do
+        it "parse the file" do
+          simple_definition
 
-      File.should_receive(:open).and_return(file_io)
-      Slither.should_receive(:definition).with(:test).and_return(definition)
-      Slither::Parser.should_receive(:new).with(definition, file_io).and_return(parser)
-      parser.should_receive(:parse).and_return("parse result")
-
-      Slither.parse(@file_name, :test).should eq("parse result")
+          expect(
+            Slither.parse(simple_definition_file, :simple)
+          ).to eq(simple_definition_test_data)
+        end
+      end
     end
   end
 end

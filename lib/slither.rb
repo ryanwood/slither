@@ -27,6 +27,7 @@ module Slither
     definition
   end
 
+  # Generate a File from Data.
   def self.generate(definition_name, data)
     definition = definition(definition_name)
     raise ArgumentError, "Definition name '#{name}' was not found." unless definition
@@ -34,6 +35,7 @@ module Slither
     generator.generate(data)
   end
 
+  # Writes the File
   def self.write(filename, definition_name, data)
     File.open(filename, 'w') do |f|
       f.write generate(definition_name, data)

@@ -1,86 +1,107 @@
-require File.join(File.dirname(__FILE__), 'spec_helper')
+# frozen_string_literal: true
 
-describe Slither::Definition do  
-  before(:each) do
-  end
-  
+RSpec.describe Slither::Definition do
   describe "when specifying alignment" do
-    it "should have an alignment option" do
-      d = Slither::Definition.new :align => :right
-      d.options[:align].should == :right
+    subject { described_class }
+
+    it "have an alignment option" do
+      definition = subject.new(align: :left)
+
+      expect(definition.options[:align]).to eq(:left)
     end
-    
-    it "should default to being right aligned" do
-      d = Slither::Definition.new
-      d.options[:align].should == :right
+
+    it "default to being right aligned" do
+      definition = subject.new
+
+      expect(definition.options[:align]).to eq(:right)
     end
-  
-    it "should override the default if :align is passed to the section" do
-      d = Slither::Definition.new
-      d.options[:align].should == :right
-      d.section('name', :align => :left) {}
-      section = nil
-      d.sections.each { |sec| section = sec if sec.name == 'name' }
-      section.options[:align].should eq(:left)
+
+    context "when messing with the section alignment" do
+      subject { described_class.new }
+
+      it "defaults to :right if is not specified" do
+        subject.section("name") {}
+
+        section = subject.sections.first
+
+        expect(section.options[:align]).to eq(:right)
+      end
+
+      it "override default if :align is passed to the section" do
+        subject.section("name", align: :left) {}
+
+        section = subject.sections.first
+
+        expect(section.options[:align]).to eq(:left)
+      end
     end
   end
-  
-  describe "when creating a section" do
-    before(:each) do
-      @d = Slither::Definition.new
-      @section = mock('section').as_null_object
-    end
-    
-    it "should create and yield a new section object" do
+
+  describe "#section" do
+    subject { described_class.new }
+
+    it "create and yield a new section object" do
       yielded = nil
-      @d.section :header do |section|
+
+      subject.section :header do |section|
         yielded = section
       end
-      yielded.should be_a(Slither::Section)
-      @d.sections.first.should == yielded
+
+      expect(yielded).to be_a(Slither::Section)
+      expect(subject.sections.first).to eq(yielded)
     end
-          
-    it "should magically build a section from an unknown method" do
-      Slither::Section.should_receive(:new).with(:header, anything()).and_return(@section)
-      @d.header {}
+
+    it "magically build a section from an unknown method" do
+      new_section = nil
+
+      subject.new_section do |section|
+        new_section = section
+      end
+
+      expect(new_section).to be_a(Slither::Section)
+      expect(new_section.name).to eq(:new_section)
     end
-    
-    it "should not create duplicate section names" do
-      lambda { @d.section(:header) {} }.should_not raise_error(ArgumentError)
-      lambda { @d.section(:header) {} }.should raise_error(ArgumentError, "Reserved or duplicate section name: 'header'")
+
+    it "does not create duplicate section names" do
+      subject.section(:header) {}
+
+      expect do
+        subject.section(:header) {}
+      end.to raise_error(ArgumentError)
     end
-    
-    it "should throw an error if a reserved section name is used" do
-      lambda { @d.section(:spacer) {} }.should raise_error(ArgumentError, "Reserved or duplicate section name: 'spacer'")
+
+    it "throw an error if a reserved section name is used" do
+      reserved_name = Slither::Section::RESERVED_NAMES.first
+
+      expect do
+        subject.section(reserved_name)
+      end.to raise_error(ArgumentError)
     end
   end
-  
-  describe "when creating a template" do
-    before(:each) do
-      @d = Slither::Definition.new
-      @section = mock('section').as_null_object
+
+  describe "#template" do
+    subject { described_class.new }
+
+    it "create a new section" do
+      expect(Slither::Section).to receive(:new)
+
+      subject.template(:row) {}
     end
-    
-    it "should create a new section" do
-      Slither::Section.should_receive(:new).with(:row, anything()).and_return(@section)
-      @d.template(:row) {}
-    end
-    
-    it "should yield the new section" do
-      Slither::Section.should_receive(:new).with(:row, anything()).and_return(@section)
-      yielded = nil
-      @d.template :row do |section|
-        yielded = section
-      end
-      yielded.should == @section
-    end
-    
+
     it "add a section to the templates collection" do
-      @d.should have(0).templates
-      @d.template :row do |t|
-        t.column :id, 3
+      expect do
+        subject.template(:row) {}
+      end.to change { subject.templates.count }.by(1)
+    end
+
+    it "yield the new section" do
+      yielded = nil
+
+      subject.template(:row) do |section|
+        yielded = section
       end
-      @d.should have(1).templates
+
+      expect(yielded).to be_a(Slither::Section)
     end
   end
 end

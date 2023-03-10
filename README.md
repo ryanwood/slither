@@ -25,14 +25,16 @@ Create a Slither::Defintion to describe a file format
     end
 
     # Create a header section
-    d.header :align => :left do |header|
+    #   alternatively, you can define the section on the fly by using metaprogramming
+    #   ex: d.header(:align => :left) { |header| ... }
+    d.section(:header, :align => :left) do |header|
       # The trap tells Slither which lines should fall into this section
       header.trap { |line| line[0,4] == 'HEAD' }
       # Use the boundary template for the columns
       header.template :boundary
     end
 
-    d.body do |body|
+    d.section(:body) do |body|
       body.trap { |line| line[0,4] =~ /[^(HEAD|FOOT)]/ }
       body.column :id, 10, :type => :integer
       body.column :name, 10, :align => :left
@@ -40,7 +42,7 @@ Create a Slither::Defintion to describe a file format
       body.column :state, 2
     end
 
-    d.footer do |footer|
+    d.section(:footer) do |footer|
       footer.trap { |line| line[0,4] == 'FOOT' }
       footer.template :boundary
       footer.column :record_count, 10

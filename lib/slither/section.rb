@@ -41,6 +41,13 @@ module Slither
       @options = template.options.merge(@options)
     end
 
+    # Format a data Hash using columns width.
+    # - Data - hash, based on columns definitions content.
+    # Ex: Having the next 2 columns .column(:id, 5) && .column(:name, 10)
+    #     we pass the data hash data = { id: 3, name: "Ryan" }
+    #     the result is the content of the hash based on the columns width:
+    # format(data)
+    #   => "    3      Ryan"
     def format(data)
       # raise( ColumnMismatchError,
       #   "The '#{@name}' section has #{@columns.size} column(s) defined, but there are #{data.size} column(s) provided in the data."
@@ -80,9 +87,8 @@ module Slither
 
     private
 
-      def unpacker
-        @columns.map { |c| c.unpacker }.join('')
-      end
-
+    def unpacker
+      @columns.map { |c| c.unpacker }.join('')
+    end
   end
 end

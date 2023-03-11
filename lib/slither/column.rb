@@ -44,87 +44,103 @@ module Slither
     end
 
     def format(value)
-      pad(formatter % to_s(value))
+      string_formatted = formatter % to_s(value)
+
+      pad(string_formatted)
     rescue
       puts "Could not format column '#{@name}' as a '#{@type}' with formatter '#{formatter}' and value of '#{value}' (formatted: '#{to_s(value)}'). #{$!}"
     end
 
     private
 
-      def formatter
-        "%#{aligner}#{sizer}s"
-      end
+    # String formatter https://www.rubyguides.com/2012/01/ruby-string-formatting/
+    # https://www.dotnetperls.com/format-ruby
+    # Generates a string formatter using padding. Supports padding to the right or left as follow:
+    # formatter (right side)
+    # => "%10s"
+    #   This will generate a formatter of 10 char string right aligned.
+    #
+    # formatter (left side)
+    # => "%-10s"
+    #   This will generate a formatter of 10 char strign left aligned.
+    def formatter
+      @formatter ||= "%#{aligner}#{sizer}s"
+    end
 
-      def aligner
-        @alignment == :left ? '-' : ''
-      end
+    # Pad aligment, related with string formatting, we use - for left or nothing for right.
+    def aligner
+      @alignment == :left ? '-' : ''
+    end
 
-      def sizer
-        (@type == :float && @precision) ? @precision : @length
-      end
+    def sizer
+      (@type == :float && @precision) ? @precision : @length
+    end
 
-      # Manually apply padding. sprintf only allows padding on numeric fields.
-      def pad(value)
-        return value unless @padding == :zero
-        matcher = @alignment == :right ? /^ +/ : / +$/
-        space = value.match(matcher)
-        return value unless space
-        value.gsub(space[0], '0' * space[0].size)
-      end
+    # Manually apply padding. sprintf only allows padding on numeric fields.
+    def pad(value)
+      return value unless @padding == :zero
 
-      def inspect
-        "#<#{self.class} #{instance_variables.map{|iv| "#{iv}=>#{instance_variable_get(iv)}"}.join(', ')}>"
-      end
+      matcher = @alignment == :right ? /^ +/ : / +$/
+      space = value.match(matcher)
 
-      def to_s(value)
-        result = case @type
-          when :date
-            # If it's a DBI::Timestamp object, see if we can convert it to a Time object
-            unless value.respond_to?(:strftime)
-              value = value.to_time if value.respond_to?(:to_time)
-            end
-            if value.respond_to?(:strftime)
-              if @options[:format]
-                value.strftime(@options[:format])
-              else
-                value.strftime
-              end
+      return value unless space
+
+      value.gsub(space[0], '0' * space[0].size)
+    end
+
+    def inspect
+      "#<#{self.class} #{instance_variables.map{|iv| "#{iv}=>#{instance_variable_get(iv)}"}.join(', ')}>"
+    end
+
+    def to_s(value)
+      result = case @type
+        when :date
+          # If it's a DBI::Timestamp object, see if we can convert it to a Time object
+          unless value.respond_to?(:strftime)
+            value = value.to_time if value.respond_to?(:to_time)
+          end
+          if value.respond_to?(:strftime)
+            if @options[:format]
+              value.strftime(@options[:format])
             else
-              value.to_s
+              value.strftime
             end
-          when :float
-            @options[:format] ? @options[:format] % value.to_f : value.to_f.to_s
-          when :money
-            "%.2f" % value.to_f
-          when :money_with_implied_decimal
-            "%d" % (value.to_f * 100)
           else
             value.to_s
-        end
-        validate_size result
-      end
-
-      def assert_valid_options(options)
-        unless options[:align].nil? || [:left, :right].include?(options[:align])
-          raise ArgumentError, "Option :align only accepts :right (default) or :left"
-        end
-        unless options[:padding].nil? || [:space, :zero].include?(options[:padding])
-          raise ArgumentError, "Option :padding only accepts :space (default) or :zero"
-        end
-      end
-
-      def validate_size(result)
-        # Handle when length is out of range
-        if result.length > @length
-          if @truncate
-            start = @alignment == :left ? 0 : -@length
-            result = result[start, @length]
-          else
-            raise Slither::FormattedStringExceedsLengthError,
-              "The formatted value '#{result}' in column '#{@name}' exceeds the allowed length of #{@length} chararacters."
           end
-        end
-        result
+        when :float
+          @options[:format] ? @options[:format] % value.to_f : value.to_f.to_s
+        when :money
+          "%.2f" % value.to_f
+        when :money_with_implied_decimal
+          "%d" % (value.to_f * 100)
+        else
+          value.to_s
       end
+      validate_size result
+    end
+
+    def assert_valid_options(options)
+      unless options[:align].nil? || [:left, :right].include?(options[:align])
+        raise ArgumentError, "Option :align only accepts :right (default) or :left"
+      end
+      unless options[:padding].nil? || [:space, :zero].include?(options[:padding])
+        raise ArgumentError, "Option :padding only accepts :space (default) or :zero"
+      end
+    end
+
+    def validate_size(result)
+      # Handle when length is out of range
+      if result.length > @length
+        if @truncate
+          start = @alignment == :left ? 0 : -@length
+          result = result[start, @length]
+        else
+          raise Slither::FormattedStringExceedsLengthError,
+            "The formatted value '#{result}' in column '#{@name}' exceeds the allowed length of #{@length} chararacters."
+        end
+      end
+      result
+    end
   end
 end

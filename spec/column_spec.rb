@@ -1,224 +1,346 @@
-require File.join(File.dirname(__FILE__), 'spec_helper')
-    
-describe Slither::Column do
-  before(:each) do
-    @name = :id
-    @length = 5
-    @column = Slither::Column.new(@name, @length)
-  end
-  
-  describe "when being created" do
-    it "should have a name" do
-      @column.name.should == @name
+# frozen_string_literal: true
+
+RSpec.describe Slither::Column do
+  subject { described_class.new(name, length, **options) }
+
+  let(:name) { :id }
+  let(:length) { 5 }
+  let(:options) { {} }
+
+  describe "#initialize" do
+    it "have a name" do
+      expect(subject.name).to eq(name)
     end
-    
-    it "should have a length" do
-      @column.length.should == @length
+
+    it "have a length" do
+      expect(subject.length).to eq(length)
     end
-    
-    it "should have a default padding" do
-      @column.padding.should == :space
+
+    it "have a default padding" do
+      expect(subject.padding).to eq(:space)
     end
-    
-    it "should have a default alignment" do
-      @column.alignment.should == :right
+
+    it "have a default alignment" do
+      expect(subject.alignment).to eq(:right)
     end
-   
-    it "should return a proper formatter" do
-      @column.send(:formatter).should == "%5s"
+
+    # WHY THO?
+    it "have a default formatter" do
+      expect(subject.send(:formatter)).to eq("%5s")
+    end
+
+    it "have a default unpacker value" do
+      expect(subject.send(:unpacker)).to eq("A5")
+    end
+
+    context "when specifying an alignment" do
+      let(:options) { { align: alignment } }
+      let(:alignment) { :left }
+
+      it "override the default one" do
+        expect(subject.alignment).to eq(alignment)
+      end
+
+      context "when alignment is not left nor right" do
+        let(:alignment) { :up }
+
+        it "raises error" do
+          expect do
+            subject
+          end.to raise_error(ArgumentError)
+        end
+      end
+    end
+
+    context "when specifying padding" do
+      let(:options) { { padding: padding } }
+      let(:padding) { :zero }
+
+      it "override the default one" do
+        expect(subject.padding).to eq(padding)
+      end
+
+      context "when padding is not space nor zero" do
+        let(:padding) { :up }
+
+        it "raises error" do
+          expect do
+            subject
+          end.to raise_error(ArgumentError)
+        end
+      end
     end
   end
 
-  describe "when specifying an alignment" do
-    before(:each) do
-      @column = Slither::Column.new(@name, @length, :align => :left)
+  describe "#parse" do
+    context "when using the default (string) type" do
+      let(:parse_collection) do
+        [
+          { value: "    name ", result: "name" },
+          { value: "      234", result: "234" },
+          { value: "000000234", result: "000000234" },
+          { value: "12.34", result: "12.34" }
+        ]
+      end
+
+      it "parse the expected values" do
+        parse_collection.each do |to_parse|
+          expect(subject.parse(to_parse[:value])).to eq(to_parse[:result])
+        end
+      end
     end
-    
-    it "should only accept :right or :left for an alignment" do
-      lambda{ Slither::Column.new(@name, @length, :align => :bogus) }.should raise_error(ArgumentError, "Option :align only accepts :right (default) or :left")
-    end 
-        
-    it "should override the default alignment" do
-      @column.alignment.should == :left
+
+    context "when type is integer" do
+      let(:options) { { type: :integer } }
+
+      let(:parse_collection) do
+        [
+          { value: "234     ", result: 234 },
+          { value: "     234", result: 234 },
+          { value: "00000234", result: 234 },
+          { value: "Ryan    ", result: 0 },
+          { value: "00023.45", result: 23 }
+        ]
+      end
+
+      it "parse the expected values" do
+        parse_collection.each do |to_parse|
+          expect(subject.parse(to_parse[:value])).to eq(to_parse[:result])
+        end
+      end
     end
-  end
-  
-  describe "when specifying padding" do
-    before(:each) do
-      @column = Slither::Column.new(@name, @length, :padding => :zero)
+
+    context "when type is float" do
+      let(:options) { { type: :float } }
+
+      let(:parse_collection) do
+        [
+          { value: "  234.45", result: 234.45 },
+          { value: "234.5600", result: 234.56 },
+          { value: "     234", result: 234.0 },
+          { value: "00000234", result: 234.0 },
+          { value: "Ryan    ", result: 0 },
+          { value: "00023.45", result: 23.45 }
+        ]
+      end
+
+      it "parse the expected values" do
+        parse_collection.each do |to_parse|
+          expect(subject.parse(to_parse[:value])).to eq(to_parse[:result])
+        end
+      end
     end
-    
-    it "should accept only :space or :zero" do
-      lambda{ Slither::Column.new(@name, @length, :padding => :bogus) }.should raise_error(ArgumentError, "Option :padding only accepts :space (default) or :zero")  
+
+    context "when type is money_with_implied_decimal" do
+      let(:options) { { type: :money_with_implied_decimal } }
+
+      it "parse the expected value" do
+        expect(subject.parse("   23445")).to eq(234.45)
+      end
     end
-    
-    it "should override the default padding" do
-      @column.padding.should == :zero
+
+    context "when type is date" do
+      let(:options) { { type: :date } }
+
+      it "parse the expected value" do
+        date = "2023-03-10"
+
+        result = subject.parse(date)
+
+        expect(result).to be_a(Date)
+        expect(result.to_s).to eq(date)
+      end
+
+      context "and date format is specified" do
+        let(:options) { { type: :date, format: "%m%d%Y" } }
+
+        it "parse the expected value" do
+          date = "03102023"
+
+          result = subject.parse(date)
+
+          expect(result).to be_a(Date)
+          expect(result.to_s).to eq("2023-03-10")
+        end
+      end
     end
   end
 
-  it "should return the proper unpack value for a string" do
-    @column.send(:unpacker).should == 'A5'
-  end
-    
-  describe "when parsing a value from a file" do    
-    it "should default to a string" do
-      @column.parse('    name ').should == 'name'
-      @column.parse('      234').should == '234'
-      @column.parse('000000234').should == '000000234'
-      @column.parse('12.34').should == '12.34'
-    end
-  
-    it "should support the integer type" do
-      @column = Slither::Column.new(:amount, 10, :type=> :integer)
-      @column.parse('234     ').should == 234
-      @column.parse('     234').should == 234
-      @column.parse('00000234').should == 234
-      @column.parse('Ryan    ').should == 0
-      @column.parse('00023.45').should == 23
+  describe "#format" do
+    context "when applying formatting options" do
+      context "using left alignment" do
+        let(:options) { { align: :left } }
+
+        it "uses a proper formatter" do
+          expect(subject.send(:formatter)).to eq("%-5s")
+        end
+
+        it "respect the format" do
+          expect(subject.format(25)).to eq("25   ")
+        end
+      end
+
+      context "using right alignment" do
+        let(:options) { { align: :right } }
+
+        it "respect the format" do
+          expect(subject.format(25)).to eq("   25")
+        end
+      end
+
+      context "using padding with spaces" do
+        let(:options) { { padding: :space } }
+
+        it "respect the format" do
+          expect(subject.format(25)).to eq('   25')
+        end
+      end
+
+      context "using padding with zeros with integer types" do
+        let(:options) { { type: :integer, padding: :zero } }
+
+        it "respect the format" do
+          expect(subject.format(25)).to eq("00025")
+        end
+      end
+
+      context "using padding with zeros with float type" do
+        let(:options) { { type: :float, padding: :zero, align: align } }
+
+        context "right aligned" do
+          let(:align) { :right }
+
+          it "respect the format" do
+            expect(subject.format(4.45)).to eq("04.45")
+          end
+        end
+
+        context "left aligned" do
+          let(:align) { :left }
+
+          it "respect the format" do
+            expect(subject.format(4.45)).to eq("4.450")
+          end
+        end
+      end
     end
 
-    it "should support the float type" do
-      @column = Slither::Column.new(:amount, 10, :type=> :float)
-      @column.parse('  234.45').should == 234.45
-      @column.parse('234.5600').should == 234.56
-      @column.parse('     234').should == 234.0
-      @column.parse('00000234').should == 234.0
-      @column.parse('Ryan    ').should == 0
-      @column.parse('00023.45').should == 23.45
-    end
-    
-    it "should support the money_with_implied_decimal type" do
-      @column = Slither::Column.new(:amount, 10, :type=> :money_with_implied_decimal)
-      @column.parse('   23445').should == 234.45
-    end    
+    context "when formatting files/strings" do
+      it "parse the string" do
+        expect(subject.format("Bill")).to eq(" Bill")
+      end
 
-    it "should support the date type" do
-      @column = Slither::Column.new(:date, 10, :type => :date)
-      dt = @column.parse('2009-08-22')
-      dt.should be_a(Date)
-      dt.to_s.should == '2009-08-22'
-    end   
-    
-    it "should use the format option with date type if available" do
-      @column = Slither::Column.new(:date, 10, :type => :date, :format => "%m%d%Y")
-      dt = @column.parse('08222009')
-      dt.should be_a(Date)
-      dt.to_s.should == '2009-08-22'
-    end   
-  end
-  
-  describe "when applying formatting options" do
-    it "should return a proper formatter" do
-      @column = Slither::Column.new(@name, @length, :align => :left)
-      @column.send(:formatter).should == "%-5s"
-    end
-    
-    it "should respect a right alignment" do
-      @column = Slither::Column.new(@name, @length, :align => :right)
-      @column.format(25).should == '   25'
-    end
-    
-    it "should respect a left alignment" do
-      @column = Slither::Column.new(@name, @length, :align => :left)
-      @column.format(25).should == '25   '
-    end
-    
-    it "should respect padding with spaces" do
-      @column = Slither::Column.new(@name, @length, :padding => :space)
-      @column.format(25).should == '   25'
-    end
-    
-    it "should respect padding with zeros with integer types" do
-      @column = Slither::Column.new(@name, @length, :type => :integer, :padding => :zero)
-      @column.format(25).should == '00025'
-    end
-    
-    describe "that is a float type" do
-      it "should respect padding with zeros aligned right" do
-        @column = Slither::Column.new(@name, @length, :type => :float, :padding => :zero, :align => :right)
-        @column.format(4.45).should == '04.45'
-      end
-      
-      it "should respect padding with zeros aligned left" do
-        @column = Slither::Column.new(@name, @length, :type => :float, :padding => :zero, :align => :left)
-        @column.format(4.45).should == '4.450'
-      end
-    end    
-  end
-    
-  describe "when formatting values for a file" do
-    it "should default to a string" do
-      @column = Slither::Column.new(:name, 10)
-      @column.format('Bill').should == '      Bill'
-    end
-    
-    describe "whose size is too long" do
-      it "should raise an error if truncate is false" do
-        @value = "XX" * @length
-        lambda { @column.format(@value) }.should raise_error(
-          Slither::FormattedStringExceedsLengthError,
-          "The formatted value '#{@value}' in column '#{@name}' exceeds the allowed length of #{@length} chararacters."
-        )
-      end
-      
-      it "should truncate from the left if truncate is true and aligned left" do
-        @column = Slither::Column.new(@name, @length, :truncate => true, :align => :left)
-        @column.format("This is too long").should == "This "
-      end
-      
-      it "should truncate from the right if truncate is true and aligned right" do
-        @column = Slither::Column.new(@name, @length, :truncate => true, :align => :right)
-        @column.format("This is too long").should == " long"
-      end
-    end
-    
-    it "should support the integer type" do
-      @column = Slither::Column.new(:amount, 10, :type => :integer)
-      @column.format(234).should        == '       234'
-      @column.format('234').should      == '       234'
-    end
-  
-    it "should support the float type" do
-      @column = Slither::Column.new(:amount, 10, :type => :float)
-      @column.format(234.45).should       == '    234.45'
-      @column.format('234.4500').should   == '    234.45'
-      @column.format('3').should          == '       3.0'
-    end
-    
-    it "should support the float type with a format" do
-      @column = Slither::Column.new(:amount, 10, :type => :float, :format => "%.3f")
-      @column.format(234.45).should       == '   234.450'
-      @column.format('234.4500').should   == '   234.450'
-      @column.format('3').should          == '     3.000'
-    end
-    
-    it "should support the float type with a format, alignment and padding" do
-      @column = Slither::Column.new(:amount, 10, :type => :float, :format => "%.2f", :align => :left, :padding => :zero)
-      @column.format(234.45).should       == '234.450000'
-      @column = Slither::Column.new(:amount, 10, :type => :float, :format => "%.2f", :align => :right, :padding => :zero)
-      @column.format('234.400').should    == '0000234.40'
-      @column = Slither::Column.new(:amount, 10, :type => :float, :format => "%.4f", :align => :left, :padding => :space)
-      @column.format('3').should          == '3.0000    '
-    end
-    
-    it "should support the money_with_implied_decimal type" do
-      @column = Slither::Column.new(:amount, 10, :type=> :money_with_implied_decimal)
-      @column.format(234.450).should   == "     23445"
-      @column.format(12.34).should     == "      1234"
-    end    
-  
-    it "should support the date type" do
-      dt = Date.new(2009, 8, 22)
-      @column = Slither::Column.new(:date, 10, :type => :date)
-      @column.format(dt).should == '2009-08-22'
-    end   
-    
-    it "should support the date type with a :format" do
-      dt = Date.new(2009, 8, 22)
-      @column = Slither::Column.new(:date, 8, :type => :date, :format => "%m%d%Y")
-      @column.format(dt).should == '08222009'
-    end 
-  end
+      context "when string is too long" do
+        it "raises an error" do
+          value = "Billllllllllll"
 
+          expect do
+            subject.format(value)
+          end.to raise_error(Slither::FormattedStringExceedsLengthError)
+        end
+      end
+
+      context "truncate is true" do
+        let(:options) { { truncate: true, align: align } }
+        let(:value) { "This is too long" }
+
+        context "left aligned" do
+          let(:align) { :left }
+
+          it "truncate the string left-aligned" do
+            expect(subject.format(value)).to eq("This ")
+          end
+        end
+
+        context "right aligned" do
+          let(:align) { :right }
+
+          it "truncate the string right-aligned" do
+            expect(subject.format(value)).to eq(" long")
+          end
+        end
+      end
+
+      context "when type is integer" do
+        let(:options) { { type: :integer } }
+
+        it "supports the type" do
+          expect(subject.format(234)).to eq("  234")
+          expect(subject.format("234")).to eq("  234")
+        end
+      end
+
+      context "when type is float" do
+        let(:options) { { type: :float } }
+
+        it "supports the type" do
+          expect(subject.format(23.4)).to eq(" 23.4")
+          expect(subject.format("2.2000")).to eq("  2.2")
+          expect(subject.format("3")).to eq("  3.0")
+        end
+
+        context "with format" do
+          let(:options) { { type: :float, format: "%.3f"} }
+          let(:length) { 10 }
+
+          it "support the type with its format" do
+            expect(subject.format(234.45)).to eq("   234.450")
+            expect(subject.format('234.4500')).to eq("   234.450")
+            expect(subject.format('3')).to eq("     3.000")
+          end
+
+          context "alignment and padding" do
+            it "supports the type with the extra options" do
+              [
+                { format: "%.2f", aligment: :left, padding: :zero, value: 234.45, result: "234.450000" },
+                { format: "%.2f", aligment: :right, padding: :zero, value: "234.400", result: "0000234.40" },
+                { format: "%.4f", aligment: :left, padding: :space, value: "3", result: "3.0000    " }
+              ].each do |obj|
+                sub = described_class.new(
+                  :amount,
+                  10,
+                  type: :float,
+                  format: obj[:format],
+                  align: obj[:aligment],
+                  padding: obj[:padding]
+                )
+
+                expect(sub.format(obj[:value])).to eq(obj[:result])
+              end
+            end
+          end
+        end
+      end
+
+      context "when type is money_with_implied_decimal" do
+        let(:options) { { type: :money_with_implied_decimal } }
+        let(:length) { 10 }
+
+        it "supports the type" do
+          expect(subject.format(234.450)).to eq("     23445")
+          expect(subject.format(12.34)).to eq("      1234")
+        end
+      end
+
+      context "when type is date" do
+        let(:options) { { type: :date, **extra_opts } }
+        let(:extra_opts) { {} }
+        let(:length) { 10 }
+        let(:date) { Date.new(2009, 8, 22) }
+
+        it "supports the type" do
+          expect(subject.format(date)).to eq("2009-08-22")
+        end
+
+        context "and format is specified" do
+          let(:extra_opts) { { format: "%m%d%Y" } }
+
+          it "supports the type with its format" do
+
+            expect(subject.format(date)).to eq("  08222009")
+          end
+        end
+      end
+    end
+  end
 end

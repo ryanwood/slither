@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe Slither::Definition do
+  # rubocop:disable Lint/EmptyBlock
   describe "when specifying alignment" do
     subject { described_class }
 
@@ -104,4 +105,5 @@ RSpec.describe Slither::Definition do
       expect(yielded).to be_a(Slither::Section)
     end
   end
+  # rubocop:enable Lint/EmptyBlock
 end

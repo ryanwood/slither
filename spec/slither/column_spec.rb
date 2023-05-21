@@ -53,7 +53,7 @@ RSpec.describe Slither::Column do
     end
 
     context "when specifying padding" do
-      let(:options) { { padding: padding } }
+      let(:options) { { padding: } }
       let(:padding) { :zero }
 
       it "override the default one" do
@@ -192,7 +192,7 @@ RSpec.describe Slither::Column do
         let(:options) { { padding: :space } }
 
         it "respect the format" do
-          expect(subject.format(25)).to eq('   25')
+          expect(subject.format(25)).to eq("   25")
         end
       end
 
@@ -205,7 +205,7 @@ RSpec.describe Slither::Column do
       end
 
       context "using padding with zeros with float type" do
-        let(:options) { { type: :float, padding: :zero, align: align } }
+        let(:options) { { type: :float, padding: :zero, align: } }
 
         context "right aligned" do
           let(:align) { :right }
@@ -241,7 +241,7 @@ RSpec.describe Slither::Column do
       end
 
       context "truncate is true" do
-        let(:options) { { truncate: true, align: align } }
+        let(:options) { { truncate: true, align: } }
         let(:value) { "This is too long" }
 
         context "left aligned" do
@@ -280,13 +280,13 @@ RSpec.describe Slither::Column do
         end
 
         context "with format" do
-          let(:options) { { type: :float, format: "%.3f"} }
+          let(:options) { { type: :float, format: "%.3f" } }
           let(:length) { 10 }
 
           it "support the type with its format" do
             expect(subject.format(234.45)).to eq("   234.450")
-            expect(subject.format('234.4500')).to eq("   234.450")
-            expect(subject.format('3')).to eq("     3.000")
+            expect(subject.format("234.4500")).to eq("   234.450")
+            expect(subject.format("3")).to eq("     3.000")
           end
 
           context "alignment and padding" do
@@ -336,7 +336,6 @@ RSpec.describe Slither::Column do
           let(:extra_opts) { { format: "%m%d%Y" } }
 
           it "supports the type with its format" do
-
             expect(subject.format(date)).to eq("  08222009")
           end
         end

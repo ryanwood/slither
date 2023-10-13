@@ -8,38 +8,35 @@ RSpec.describe Slither do
 
   describe ".define" do
     it "creates a new definition using the specified name and options" do
-      definition = double("definition")
-
-      expect(subject).to receive(:define).with(name, options).and_return(definition)
-
-      subject.define(name, options)
-    end
-
-    it "pass the definition to the block" do
-      yielded = nil
-
-      described_class.define(name) do |y|
-        yielded = y
+      subject.define(name, options) do
+        # Empty block
       end
 
-      expect(yielded).to be_a(Slither::Definition)
+      definition = subject.send(:definitions)[name]
+
+      expect(definition).to be_a(Slither::Definition)
+      expect(definition.options).to eq(options.merge(by_bytes: true))
     end
 
     it "adds the definition to the internal definition count" do
       expect do
-        subject.define("new_definition", options) {}
+        # NOTE: as @@definitions is a class variable that's shared across the specs,
+        #       so we need to ensure we add a new one.
+        subject.define("#{name}-1", options) do
+          # Empty block
+        end
       end.to change { subject.send(:definitions).count }.by(1)
     end
   end
 
   describe ".generate" do
-    it "should raise an error if the definition name is not found" do
+    it "raise an error if the definition name is not found" do
       expect do
         subject.generate(:not_found_definition, {})
       end.to raise_error(ArgumentError)
     end
 
-    it "should output a string" do
+    it "output a string" do
       simple_definition
 
       expect(
@@ -54,7 +51,8 @@ RSpec.describe Slither do
     it "write a file" do
       simple_definition
 
-      file = double("file")
+      file = instance_double(File, "file")
+
       allow(File).to receive(:open).with(file_name, "w").and_yield(file)
       expect(file).to receive(:write)
 
@@ -89,7 +87,7 @@ RSpec.describe Slither do
           simple_definition
 
           expect(
-            Slither.parse(simple_definition_file, :simple)
+            subject.parse(simple_definition_file, :simple)
           ).to eq(simple_definition_test_data)
         end
       end

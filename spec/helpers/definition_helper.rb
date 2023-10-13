@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module DefinitionHelper
+  # rubocop:disable Metrics/AbcSize
   def simple_definition
     Slither.define :simple, by_bytes: false do |d|
       # This is a template section that can be reused in other sections
@@ -18,7 +19,7 @@ module DefinitionHelper
       end
 
       d.body do |body|
-        body.trap { |line| line[0, 4] =~ /[^(HEAD|FOOT)]/ }
+        body.trap { |line| line[0, 4] =~ /[^(HEAD|FOT)]/ }
         body.column :id, 10, type: :integer
         body.column :name, 10, align: :left
         body.spacer 3
@@ -32,9 +33,10 @@ module DefinitionHelper
       end
     end
   end
+  # rubocop:enable Metrics/AbcSize
 
   def simple_definition_test_data
-   {
+    {
       header: [
         { record_type: "HEAD", company_id: "ABC" }
       ],

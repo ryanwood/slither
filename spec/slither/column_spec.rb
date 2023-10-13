@@ -192,7 +192,7 @@ RSpec.describe Slither::Column do
         let(:options) { { padding: :space } }
 
         it "respect the format" do
-          expect(subject.format(25)).to eq('   25')
+          expect(subject.format(25)).to eq("   25")
         end
       end
 
@@ -280,13 +280,13 @@ RSpec.describe Slither::Column do
         end
 
         context "with format" do
-          let(:options) { { type: :float, format: "%.3f"} }
+          let(:options) { { type: :float, format: "%.3f" } }
           let(:length) { 10 }
 
           it "support the type with its format" do
             expect(subject.format(234.45)).to eq("   234.450")
-            expect(subject.format('234.4500')).to eq("   234.450")
-            expect(subject.format('3')).to eq("     3.000")
+            expect(subject.format("234.4500")).to eq("   234.450")
+            expect(subject.format("3")).to eq("     3.000")
           end
 
           context "alignment and padding" do

@@ -20,7 +20,9 @@ RSpec.describe Slither::Definition do
       subject { described_class.new }
 
       it "defaults to :right if is not specified" do
-        subject.section("name") {}
+        subject.section("name") do
+          # Empty block
+        end
 
         section = subject.sections.first
 
@@ -28,7 +30,9 @@ RSpec.describe Slither::Definition do
       end
 
       it "override default if :align is passed to the section" do
-        subject.section("name", align: :left) {}
+        subject.section("name", align: :left) do
+          # Empty block
+        end
 
         section = subject.sections.first
 
@@ -63,10 +67,14 @@ RSpec.describe Slither::Definition do
     end
 
     it "does not create duplicate section names" do
-      subject.section(:header) {}
+      subject.section(:header) do
+        # Empty block
+      end
 
       expect do
-        subject.section(:header) {}
+        subject.section(:header) do
+          # Empty block
+        end
       end.to raise_error(ArgumentError)
     end
 
@@ -85,12 +93,16 @@ RSpec.describe Slither::Definition do
     it "create a new section" do
       expect(Slither::Section).to receive(:new)
 
-      subject.template(:row) {}
+      subject.template(:row) do
+        # Empty block
+      end
     end
 
     it "add a section to the templates collection" do
       expect do
-        subject.template(:row) {}
+        subject.template(:row) do
+          # Empty block
+        end
       end.to change { subject.templates.count }.by(1)
     end
 

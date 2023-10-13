@@ -36,7 +36,7 @@ RSpec.describe Slither::Section do
       end.to raise_error(Slither::DuplicateColumnNameError)
     end
 
-    it "should allow duplicate column names that are reserved (i.e. spacer)" do
+    it "allow duplicate column names that are reserved (i.e. spacer)" do
       subject.spacer(10)
 
       expect do
@@ -82,15 +82,15 @@ RSpec.describe Slither::Section do
         trap = subject.instance_variable_get(:@trap)
 
         expect(trap).to be_a(Proc)
-        expect(trap.call(4)).to eq(true)
+        expect(trap.call(4)).to be(true)
       end
     end
 
-    it "should try to match a line using the trap" do
+    it "try to match a line using the trap" do
       subject.trap { |line| line == "hello" }
 
-      expect(subject.match("hello")).to eq(true)
-      expect(subject.match("goodbye")).to eq(false)
+      expect(subject.match("hello")).to be(true)
+      expect(subject.match("goodbye")).to be(false)
     end
   end
 
@@ -102,8 +102,8 @@ RSpec.describe Slither::Section do
     context "when template does not exist" do
       it "raise an error if the template is not found on the definition" do
         expect do
-          subject.template(:none).to raise_error(ArgumentError)
-        end
+          subject.template(:none).to
+        end.to raise_error(ArgumentError)
       end
     end
 
@@ -136,7 +136,7 @@ RSpec.describe Slither::Section do
   end
 
   describe "#format" do
-    let(:data) { { id: 3, name: "Ryan"} }
+    let(:data) { { id: 3, name: "Ryan" } }
 
     it "transform the 'data' hash to the expected format based on the columns width" do
       subject.column(:id, 5)
@@ -198,6 +198,4 @@ RSpec.describe Slither::Section do
       end
     end
   end
-
-
 end

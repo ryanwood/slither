@@ -192,40 +192,40 @@ RSpec.describe Slither::Parser do
   describe "private methods" do
     describe "#remove_new_lines!" do
       it "returns true for file starting in newlines or EOF" do
-        expect(subject.send(:remove_newlines!)).to eq(true)
+        expect(subject.send(:remove_newlines!)).to be(true)
 
         io.string = "\nXYZ"
-        expect(subject.send(:remove_newlines!)).to eq(true)
+        expect(subject.send(:remove_newlines!)).to be(true)
 
         io.string = "\r\n"
-        expect(subject.send(:remove_newlines!)).to eq(true)
+        expect(subject.send(:remove_newlines!)).to be(true)
 
         io.string = "\n\n\n\nXYZ\n"
-        expect(subject.send(:remove_newlines!)).to eq(true)
+        expect(subject.send(:remove_newlines!)).to be(true)
 
         io.string = ""
-        expect(subject.send(:remove_newlines!)).to eq(true)
+        expect(subject.send(:remove_newlines!)).to be(true)
       end
 
       it "return false for any other first characters" do
         io.string = "XYZ\nxyz"
-        expect(subject.send(:remove_newlines!)).to eq(false)
+        expect(subject.send(:remove_newlines!)).to be(false)
 
         io.string = " \nxyz"
-        expect(subject.send(:remove_newlines!)).to eq(false)
+        expect(subject.send(:remove_newlines!)).to be(false)
 
         io.string = "!YZxyz\n"
-        expect(subject.send(:remove_newlines!)).to eq(false)
+        expect(subject.send(:remove_newlines!)).to be(false)
       end
 
       it "leaves first non-newline char in place" do
         io.string = "\nXYZ"
-        expect(subject.send(:remove_newlines!)).to eq(true)
+        expect(subject.send(:remove_newlines!)).to be(true)
 
         first_character = io.getc
         expect(first_character).to eq("X")
 
-        expect(subject.send(:remove_newlines!)).to eq(false)
+        expect(subject.send(:remove_newlines!)).to be(false)
       end
     end
 
@@ -233,11 +233,11 @@ RSpec.describe Slither::Parser do
       it "is true for \n or \r and false otherwise" do
         ["\n", "\r"].each do |e|
           # ord = https://apidock.com/rails/String/ord
-          expect(subject.send(:newline?, e.ord)).to eq(true)
+          expect(subject.send(:newline?, e.ord)).to be(true)
         end
 
         ["", nil, "meep"].each do |e|
-          expect(subject.send(:newline?, e)).to eq(false)
+          expect(subject.send(:newline?, e)).to be(false)
         end
       end
     end

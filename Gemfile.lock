@@ -14,7 +14,7 @@ GEM
     parallel (1.22.1)
     parser (3.2.0.0)
       ast (~> 2.4.1)
-    pry (0.14.1)
+    pry (0.14.2)
       coderay (~> 1.1)
       method_source (~> 1.0)
     rainbow (3.1.1)
@@ -61,6 +61,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  bundler
   pry
   rake (~> 13.0)
   rspec (~> 3.0)

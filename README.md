@@ -1,6 +1,8 @@
 # Slither
 by Ryan Wood http://ryanwood.com
 
+Documentation: https://www.rubydoc.info/gems/slither
+
 # Description:
 
 A simple, clean DSL for describing, writing, and parsing fixed-width text files.

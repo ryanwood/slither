@@ -20,8 +20,9 @@ RSpec.describe Slither::Definition do
       subject { described_class.new }
 
       it "defaults to :right if is not specified" do
-        subject.section("name") do
-          # Empty block
+        subject.section("name") do |section|
+          section.column(:id, 10)
+          section.column(:name, 20)
         end
 
         section = subject.sections.first

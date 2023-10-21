@@ -4,6 +4,9 @@ require:
 AllCops:
     NewCops: enable
 
+Naming/BlockForwarding:
+  EnforcedStyle: explicit
+
 Style/StringLiterals:
   Enabled: true
   EnforcedStyle: double_quotes

@@ -48,7 +48,7 @@ module Slither
   end
 
   def self.parse(filename, definition_name)
-    raise ArgumentError, "File #{filename} does not exist." unless File.exists?(filename)
+    raise ArgumentError, "File #{filename} does not exist." unless File.exist?(filename)
 
     file_io = File.open(filename, 'r')
     parseIo(file_io, definition_name)

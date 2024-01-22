@@ -70,10 +70,6 @@ RSpec.describe Slither do
     end
 
     context "when the file is found" do
-      before do
-        allow(File).to receive(:exists?).and_return(true)
-      end
-
       context "and the definition is not found" do
         it "raises an error due to the definition name not being found" do
           expect do

@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
   spec.authors = ["Ryan Wood"]
   spec.summary = "A simple, clean DSL for describing, writing, and parsing fixed-width text files."
   spec.license = "MIT"
-  spec.required_ruby_version = ">= 3.0.0"
+  spec.required_ruby_version = ">= 3.2.0"
 
   spec.homepage = "https://github.com/ryanwood/slither"
 

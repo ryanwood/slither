@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    slither (0.99.5)
+    slither (0.99.6)
 
 GEM
   remote: https://rubygems.org/

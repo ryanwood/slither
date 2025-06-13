@@ -51,10 +51,8 @@ RSpec.describe Slither do
     it "write a file" do
       simple_definition
 
-      file = instance_double(File, "file")
-
-      allow(File).to receive(:open).with(file_name, "w").and_yield(file)
-      expect(file).to receive(:write)
+      allow(File).to receive(:write).with(file_name, anything)
+      expect(File).to receive(:write)
 
       subject.write(file_name, :simple, simple_definition_test_data)
     end

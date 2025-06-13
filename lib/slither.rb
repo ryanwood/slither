@@ -17,6 +17,18 @@ module Slither
   class LineWrongSizeError < StandardError; end
   class SectionsNotSameLengthError < StandardError; end
 
+  class << self
+    private
+
+    def definitions
+      @@definitions ||= {} # rubocop:disable Style/ClassVars
+    end
+
+    def definition(name)
+      definitions[name]
+    end
+  end
+
   # Define a Slither's definition to parse a file.
   #
   # name - String name of the definition, this should be unique.
@@ -24,7 +36,7 @@ module Slither
   #           Ex: by_bytes: true, to parse by bytes
   #           Ex: align: :left, to align the columns to the left
   # block - Block to define the sections of the definition. See README.md for more info.
-  def self.define(name, options = {}, &block)
+  def self.define(name, options = {}, &block) # rubocop:disable Lint/UnusedMethodArgument
     definition = Definition.new(options)
     yield(definition)
     definitions[name] = definition
@@ -42,33 +54,21 @@ module Slither
 
   # Writes the File
   def self.write(filename, definition_name, data)
-    File.open(filename, "w") do |f|
-      f.write generate(definition_name, data)
-    end
+    File.write(filename, generate(definition_name, data))
   end
 
   def self.parse(filename, definition_name)
     raise ArgumentError, "File #{filename} does not exist." unless File.exist?(filename)
 
-    file_io = File.open(filename, 'r')
+    file_io = File.open(filename, "r")
     parseIo(file_io, definition_name)
   end
 
-  def self.parseIo(io, definition_name)
+  def self.parseIo(io, definition_name) # rubocop:disable Naming/MethodName
     definition = definition(definition_name)
     raise ArgumentError, "Definition name '#{definition_name}' was not found." unless definition
 
     parser = Parser.new(definition, io)
     definition.options[:by_bytes] ? parser.parse_by_bytes : parser.parse
-  end
-
-  private
-
-  def self.definitions
-    @@definitions ||= {}
-  end
-
-  def self.definition(name)
-    definitions[name]
   end
 end

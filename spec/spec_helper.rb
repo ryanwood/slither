@@ -2,7 +2,7 @@
 
 require "slither"
 require "pry"
-require_relative "./helpers/definition_helper"
+require_relative "helpers/definition_helper"
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure

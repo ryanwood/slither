@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 module Slither
   class Section
     attr_accessor :definition, :optional
     attr_reader :name, :columns, :options, :length
 
-    RESERVED_NAMES = [:spacer]
+    RESERVED_NAMES = [:spacer].freeze
 
     def initialize(name, options = {})
       @name = name
@@ -15,9 +17,13 @@ module Slither
     end
 
     def column(name, length, options = {})
-      raise(Slither::DuplicateColumnNameError, "You have already defined a column named '#{name}'.") if @columns.map do |c|
+      if @columns.map do |c|
         RESERVED_NAMES.include?(c.name) ? nil : c.name
       end.flatten.include?(name)
+        raise(Slither::DuplicateColumnNameError,
+              "You have already defined a column named '#{name}'.")
+      end
+
       col = Column.new(name, length, @options.merge(options))
       @columns << col
       @length += length
@@ -35,6 +41,7 @@ module Slither
     def template(name)
       template = @definition.templates[name]
       raise ArgumentError, "Template #{name} not found as a known template." unless template
+
       @columns += template.columns
       @length += template.length
       # Section options should trump template options
@@ -52,10 +59,12 @@ module Slither
       # raise( ColumnMismatchError,
       #   "The '#{@name}' section has #{@columns.size} column(s) defined, but there are #{data.size} column(s) provided in the data."
       # ) unless @columns.size == data.size
-      row = ''
+      row = String.new
+
       @columns.each do |column|
         row += column.format(data[column.name])
       end
+
       row
     end
 
@@ -69,11 +78,13 @@ module Slither
     end
 
     def parse_when_problem(line)
-      line_data = line.unpack(@columns.map { |c| "a#{c.length}" }.join(''))
-      row = ''
+      line_data = line.unpack(@columns.map { |c| "a#{c.length}" }.join)
+      row = String.new
+
       @columns.each_with_index do |c, i|
         row << "\n'#{c.name}':'#{line_data[i]}'" unless RESERVED_NAMES.include?(c.name)
       end
+
       row
     end
 
@@ -81,14 +92,18 @@ module Slither
       raw_line.nil? ? false : @trap.call(raw_line)
     end
 
-    def method_missing(method, *args)
-      column(method, *args)
+    def respond_to_missing?(_method_name, _include_private = false)
+      true
+    end
+
+    def method_missing(method, *)
+      column(method, *)
     end
 
     private
 
     def unpacker
-      @columns.map { |c| c.unpacker }.join('')
+      @columns.map(&:unpacker).join
     end
   end
 end

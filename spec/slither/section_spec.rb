@@ -59,6 +59,7 @@ RSpec.describe Slither::Section do
 
     context "when using a method that's not defined" do
       it "uses method_missing to create a column" do
+        expect(subject).to receive(:method_missing).and_call_original
         column = subject.first_name(5)
 
         expect(subject.columns).to match([column])

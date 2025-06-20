@@ -76,8 +76,8 @@ module Slither
     # @param block [Block] A block for defining fields within the section.
     # @return [Section] The newly created section.
     #
-    def method_missing(method, *args, &block) # rubocop:disable Style/MissingRespondToMissing
-      section(method, *args, &block)
+    def method_missing(method, *, &block) # rubocop:disable Style/MissingRespondToMissing
+      section(method, *, &block)
     end
 
     private

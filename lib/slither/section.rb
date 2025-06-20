@@ -81,8 +81,12 @@ module Slither
       raw_line.nil? ? false : @trap.call(raw_line)
     end
 
-    def method_missing(method, *args)
-      column(method, *args)
+    def respond_to_missing?(_method_name, _include_private = false)
+      true
+    end
+
+    def method_missing(method, *)
+      column(method, *)
     end
 
     private

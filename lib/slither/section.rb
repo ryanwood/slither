@@ -17,9 +17,13 @@ module Slither
     end
 
     def column(name, length, options = {})
-      raise(Slither::DuplicateColumnNameError, "You have already defined a column named '#{name}'.") if @columns.map do |c|
+      if @columns.map do |c|
         RESERVED_NAMES.include?(c.name) ? nil : c.name
       end.flatten.include?(name)
+        raise(Slither::DuplicateColumnNameError,
+              "You have already defined a column named '#{name}'.")
+      end
+
       col = Column.new(name, length, @options.merge(options))
       @columns << col
       @length += length
@@ -74,7 +78,7 @@ module Slither
     end
 
     def parse_when_problem(line)
-      line_data = line.unpack(@columns.map { |c| "a#{c.length}" }.join(''))
+      line_data = line.unpack(@columns.map { |c| "a#{c.length}" }.join)
       row = String.new
 
       @columns.each_with_index do |c, i|

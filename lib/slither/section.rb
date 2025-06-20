@@ -35,6 +35,7 @@ module Slither
     def template(name)
       template = @definition.templates[name]
       raise ArgumentError, "Template #{name} not found as a known template." unless template
+
       @columns += template.columns
       @length += template.length
       # Section options should trump template options

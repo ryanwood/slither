@@ -52,10 +52,12 @@ module Slither
       # raise( ColumnMismatchError,
       #   "The '#{@name}' section has #{@columns.size} column(s) defined, but there are #{data.size} column(s) provided in the data."
       # ) unless @columns.size == data.size
-      row = ''
+      row = ""
+
       @columns.each do |column|
         row += column.format(data[column.name])
       end
+
       row
     end
 
@@ -70,10 +72,12 @@ module Slither
 
     def parse_when_problem(line)
       line_data = line.unpack(@columns.map { |c| "a#{c.length}" }.join(''))
-      row = ''
+      row = ""
+
       @columns.each_with_index do |c, i|
         row << "\n'#{c.name}':'#{line_data[i]}'" unless RESERVED_NAMES.include?(c.name)
       end
+
       row
     end
 

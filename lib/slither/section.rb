@@ -3,7 +3,7 @@ module Slither
     attr_accessor :definition, :optional
     attr_reader :name, :columns, :options, :length
 
-    RESERVED_NAMES = [:spacer]
+    RESERVED_NAMES = [:spacer].freeze
 
     def initialize(name, options = {})
       @name = name

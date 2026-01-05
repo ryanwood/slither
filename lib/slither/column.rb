@@ -94,7 +94,7 @@ module Slither
     end
 
     def to_s(value)
-      value = @default if value.nil? && @default.present?
+      value = @default if value.nil? && !@default.nil?
       result = case @type
         when :date
           # If it's a DBI::Timestamp object, see if we can convert it to a Time object
@@ -146,3 +146,4 @@ module Slither
     end
   end
 end
+

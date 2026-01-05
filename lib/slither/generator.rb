@@ -25,7 +25,7 @@ module Slither
         end
       end
 
-      builder.join("\n")
+      builder.join(definition.options[:new_line] || "\n")
     end
 
     private

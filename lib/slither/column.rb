@@ -15,6 +15,7 @@ module Slither
       @type = options[:type] || :string
       @padding = options[:padding] || :space
       @truncate = options[:truncate] || false
+      @default = options[:default]
       # Only used with floats, this determines the decimal places
       @precision = options[:precision]
     end
@@ -93,6 +94,7 @@ module Slither
     end
 
     def to_s(value)
+      value = @default if value.nil? && !@default.nil?
       result = case @type
         when :date
           # If it's a DBI::Timestamp object, see if we can convert it to a Time object
@@ -144,3 +146,4 @@ module Slither
     end
   end
 end
+
